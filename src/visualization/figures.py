@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 from ..model import params as P
+from ..model.data import OSM_WAY
 from ..model.geometry import Venue, baseline_layout, bar_box, fence_line, service_points
 
 FIG_DIR = Path(__file__).resolve().parents[2] / "results/figures"
@@ -34,13 +35,13 @@ def draw_layout(ax, venue, layout, label=True, floor=True):
 def plot_venue(venue=None, name="fig_recinto.png"):
     venue = venue or Venue()
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 5), gridspec_kw={"width_ratios": [1, 1.6]})
-    a1.fill(*venue.lot.exterior.xy, color="#cfe3f3", label="Lote OSM (way 688526225)")
+    a1.fill(*venue.lot.exterior.xy, color="#cfe3f3", label=f"Arena Gallo, OSM (way {OSM_WAY})")
     a1.add_patch(Rectangle((0, 0), P.WIDTH, P.HEIGHT, fill=False, ls="--", color="r", label="Ventana 80 x 50 m"))
     a1.set_aspect("equal")
     a1.set_title("Polígono real y zona modelada")
     a1.set_xlabel("x (m)")
     a1.set_ylabel("y (m)")
-    a1.legend(loc="upper left", fontsize=8)
+    a1.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), fontsize=8)
     draw_layout(a2, venue, baseline_layout(venue))
     x0, y0, x1, y1 = P.SPAWN_BOX
     a2.add_patch(Rectangle((x0, y0), x1 - x0, y1 - y0, alpha=0.15, color="#2c7bb6", label="Zona inicial del público"))
@@ -242,7 +243,7 @@ def plot_violins(name="fig_violines.png"):
         for key in ("cmeans", "cmins", "cmaxes", "cbars"):
             parts[key].set_color("k")
             parts[key].set_linewidth(0.8)
-        ax.set_xticks(range(1, len(labels) + 1), [textwrap.fill(lab, 11) for lab in labels], fontsize=8)
+        ax.set_xticks(range(1, len(labels) + 1), [textwrap.fill(lab, 12, break_long_words=False) for lab in labels], fontsize=8)
         ax.set_ylabel(title)
         ax.set_title(f"{title} por condición (30 réplicas)")
     axs[0].plot([], [], "s", color="#999999", label="Montaje base")

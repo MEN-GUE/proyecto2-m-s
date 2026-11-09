@@ -1,8 +1,6 @@
 Escenario,Métrica,Referencia,Tipo de referencia,Modelo base,Modelo PSO,PSO - base,Cambio
 Jülich,Flujo específico estable (p/(m s)),1.923,Real medido,1.951,,,+1.5%
 Jülich,Densidad pico frente a la puerta (p/m2),4.517,Real medido,2.978,,,-34.1%
-Cayalá,Flujo pico por metro de portón (p/(m s)),1.92 / 1.22,Jülich / SFPE,1.897,1.843,-0.055,-2.9%
-Cayalá,Densidad pico (p/m2),sin medición,,2.148,2.067,-0.082,-3.8%
-Cayalá,T95 (s),sin medición,,248.3,246.4,-1.952,-0.8%
-Cayalá,Ancho de salida total (m),2.50 requerido,NFPA 101,8.0,8.0,0,+0.0%
-Cayalá,Ancho de la salida principal (m),1.67 requerido,NFPA 101,4.0,4.0,0,+0.0%
+Cayalá,Flujo pico por metro de portón (p/(m s)),1.923,Capacidad medida en Jülich,2.408,2.1,-0.308,-12.8%
+Cayalá,Densidad pico (p/m2),sin medición,,2.281,2.119,-0.162,-7.1%
+Cayalá,T95 (s),sin medición,,254.1,250.4,-3.635,-1.4%

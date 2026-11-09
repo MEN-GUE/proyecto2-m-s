@@ -41,6 +41,8 @@ def model_parameters():
         ["Separación en fila", "", P.QUEUE_SPACING, "m", "Reposo con $A_p$, $B_p$"],
         ["Distancia para empezar la atención", "", P.SERVICE_RADIUS, "m", "Estimación"],
         ["Tiempo para desistir de comprar", "", P.GIVE_UP, "s", "Estimación"],
+        ["Espera máxima del primero de la fila", "", P.HEAD_WAIT, "s", "Estimación"],
+        ["Costo de cruzar zonas de fila al salir", "", f"{P.QUEUE_AVOID:.0f} veces", "", "Estimación"],
         ["Kernel de densidad", "$\\sigma$", P.DENS_SIGMA, "m", "Helbing et al. (2007)"],
         ["Celda de densidad", "", P.DENS_H, "m", "Elección"],
     ]

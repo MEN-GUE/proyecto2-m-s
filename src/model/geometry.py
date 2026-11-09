@@ -8,8 +8,8 @@ from shapely.ops import unary_union
 from . import params as P
 from .data import OSM_FILE, fetch_osm
 
-LAT0, LON0 = 14.6115, -90.4825   # origen de la proyeccion local
-WINDOW = (0.0, -14.5)            # esquina suroeste de la ventana en ese marco
+LAT0, LON0 = 14.6143, -90.4835   # origen de la proyeccion local, junto al extremo sur de Arena Gallo
+WINDOW = (-2.4, -1.4)            # esquina suroeste de la ventana en ese marco
 R_EARTH = 6371000.0
 
 
@@ -21,8 +21,10 @@ def to_local(lat, lon):
 
 def load_lot():
     fetch_osm()
-    way = json.loads(OSM_FILE.read_text())["elements"][0]
-    return Polygon([to_local(p["lat"], p["lon"]) for p in way["geometry"]])
+    elements = json.loads(OSM_FILE.read_text())["elements"]
+    nodes = {e["id"]: e for e in elements if e["type"] == "node"}
+    way = next(e for e in elements if e["type"] == "way")
+    return Polygon([to_local(nodes[i]["lat"], nodes[i]["lon"]) for i in way["nodes"]])
 
 
 def _segments(geom):
@@ -66,11 +68,15 @@ def fence_line(mx, my, th):
     return LineString([(mx - d[0], my - d[1]), (mx + d[0], my + d[1])])
 
 
+def west_edge(domain, y):
+    return domain.intersection(LineString([(-1, y), (P.WIDTH + 1, y)])).bounds[0]
+
+
 def baseline_layout(venue):
     bars = []
-    for cy in (11.0, 19.5, 28.0, 36.5):
-        strip = venue.domain.exterior.intersection(box(-1, cy - P.BAR_H / 2, 20, cy + P.BAR_H / 2))
-        bars.append((strip.bounds[2] + 0.2 + P.BAR_W / 2, cy))
+    for cy in P.BASE_BAR_Y:
+        ys = np.linspace(cy - P.BAR_H / 2, cy + P.BAR_H / 2, 13)
+        bars.append((max(west_edge(venue.domain, y) for y in ys) + 0.2 + P.BAR_W / 2, cy))
     return {"bars": bars, "fences": []}
 
 

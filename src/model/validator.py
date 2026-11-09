@@ -35,7 +35,7 @@ def check_layout(grid, layout):
     v["zona_de_fila"] = queue * CELL
     free = grid.free(od, P.MIN_GAP / 2)
     dist = grid.distance_to_exit(free)
-    v["area_sin_salida"] = (free & grid.domain & np.isinf(dist)).sum() * CELL
+    v["area_sin_salida"] = (free & grid.domain & np.isinf(dist) & ~grid.dead).sum() * CELL
     v = {k: float(x) for k, x in v.items()}
     penalty = sum(v.values())
     return penalty == 0, penalty, v

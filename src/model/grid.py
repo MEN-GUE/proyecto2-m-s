@@ -85,6 +85,8 @@ class Grid:
             self.source |= span & (u > 1.0) & (u <= POCKET)
         self.gate_d = np.min([np.hypot(self.x - (g[0] + g[2]) / 2, self.y - (g[1] + g[3]) / 2)
                               for g in venue.gates], axis=0)
+        empty = self.free([], P.MIN_GAP / 2)
+        self.dead = empty & self.domain & np.isinf(self.distance_to_exit(empty))
 
     def obstacle_distances(self, layout):
         d = [box_distance(self.x, self.y, cx, cy, P.BAR_W / 2, P.BAR_H / 2) for cx, cy in layout["bars"]]

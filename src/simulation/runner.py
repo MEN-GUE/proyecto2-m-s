@@ -46,11 +46,11 @@ def build_scene(venue, grid, layout):
         clear = np.minimum(clear, d)
         blocked |= d <= (0 if i < len(layout["bars"]) else 0.15)
     cost = np.where(blocked, np.inf, 1 + 3 * np.clip((P.NAV_CLEAR - clear) / P.NAV_CLEAR, 0, 1))
-    fields = [dijkstra(cost, grid.source, H)]
-    for cx, cy in layout["bars"]:
-        zone = ((grid.x >= cx + P.BAR_W / 2) & (grid.x <= cx + P.BAR_W / 2 + P.QUEUE_ZONE)
-                & (np.abs(grid.y - cy) <= P.BAR_H / 2))
-        fields.append(dijkstra(cost, zone, H))
+    zones = [(grid.x >= cx + P.BAR_W / 2) & (grid.x <= cx + P.BAR_W / 2 + P.QUEUE_ZONE)
+             & (np.abs(grid.y - cy) <= P.BAR_H / 2) for cx, cy in layout["bars"]]
+    queue_area = np.any(zones, axis=0) if zones else np.zeros_like(blocked)
+    fields = [dijkstra(np.where(queue_area, cost * P.QUEUE_AVOID, cost), grid.source, H)]
+    fields += [dijkstra(cost, zone, H) for zone in zones]
     fdist = np.array(fields)
     x0, y0, x1, y1 = venue.domain.bounds
     dx = np.arange(x0, x1, P.DENS_H) + P.DENS_H / 2
@@ -119,7 +119,7 @@ def make_agents(scene, n, service_mean, seed, box=P.SPAWN_BOX, min_dist=0.6):
 def simulate(scene, agents, tau=None, record=False, t_max=P.T_MAX):
     tau = P.TAU if tau is None else tau
     prm = np.array([tau, P.A_P, P.B_P, P.A_W, P.B_W, P.MASS, P.DT, t_max, P.V_CAP, P.DENS_SIGMA, P.SAMPLE_DT,
-                    P.QUEUE_SPACING, P.EXIT_MARGIN, P.SERVICE_RADIUS, P.GIVE_UP])
+                    P.QUEUE_SPACING, P.EXIT_MARGIN, P.SERVICE_RADIUS, P.GIVE_UP, P.HEAD_WAIT])
     n = len(agents["pos"])
     frames = np.zeros((int(t_max / P.SAMPLE_DT) + 3 if record else 0, n, 2))
     out = engine.simulate(agents["pos"], agents["v0"], agents["rad"], agents["line"], agents["dur"],

@@ -6,12 +6,13 @@ import numpy as np
 # Recinto (ventana de 80 x 50 m sobre el poligono real de OSM)
 WIDTH, HEIGHT = 80.0, 50.0
 GATE_WIDTH = 4.0
-GATE_X = (12.0, 70.0)            # posicion estimada de los portones sobre el borde sur
+GATE_X = (24.0, 50.0)            # portones estimados en el borde sur, hacia la rotonda y el acceso de Futeca
 EXIT_CLEAR_RADIUS = 5.0
 SPAWN_BOX = (2.0, 40.5, 78.0, 49.0)
 
 # Mobiliario (tamanos estimados)
 BAR_W, BAR_H = 2.0, 6.0          # barra orientada norte-sur, atiende por su cara este
+BASE_BAR_Y = (13.0, 21.5, 30.0, 38.5)   # montaje base: barras pegadas al borde oeste
 SERVERS_PER_BAR = 3
 SERVER_OFFSETS = (-2.0, 0.0, 2.0)
 QUEUE_SPACING = 0.8              # distancia de reposo con A y B de Helbing (2000)
@@ -41,6 +42,8 @@ EXIT_MARGIN = 0.3                # se cuenta como evacuado 0.3 m despues del por
 NAV_CLEAR = 0.6                  # holgura preferida al planear rutas
 SERVICE_RADIUS = 1.0             # distancia al punto de atencion para empezar a atender
 GIVE_UP = 120.0                  # quien no entra a una fila en este tiempo desiste
+QUEUE_AVOID = 4.0                # quien va a la salida evita cruzar zonas de fila (costo relativo)
+HEAD_WAIT = 20.0                 # si el primero no llega al punto de atencion en este tiempo, se le atiende igual
 
 # Densidad
 DENS_H = 0.5

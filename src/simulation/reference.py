@@ -11,9 +11,6 @@ from .experiments import load_runs
 from .runner import make_agents, simulate
 
 WINDOW = (-2.0, -1.5, 2.0, 0.0)   # zona frente a la entrada del cuello de botella que cubre la cámara
-NFPA_LEVEL = 0.005                # m por persona en componentes a nivel (NFPA 101, Tabla 7.3.3.1)
-NFPA_MAIN_SHARE = 2 / 3           # salida principal con público de pie (NFPA 101, 12.2.3.6)
-SFPE_K, SFPE_A, SFPE_BL = 1.40, 0.266, 0.15
 
 
 def _cells(dh=P.DENS_H):
@@ -77,11 +74,6 @@ def correspondence():
     real_d, sim_d = density_comparison()
     data = load_runs()
     base, pso = data["Base perimetral"], data["Propuesta PSO"]
-    fs_max = SFPE_K / (4 * SFPE_A)
-    sfpe = fs_max * (P.GATE_WIDTH - 2 * SFPE_BL) / P.GATE_WIDTH
-    width_total = len(P.GATE_X) * P.GATE_WIDTH
-    need_total = P.N_AGENTS * NFPA_LEVEL
-    need_main = NFPA_MAIN_SHARE * P.N_AGENTS * NFPA_LEVEL
 
     def change(a, b):
         return [round(b - a, 3), f"{100 * (b - a) / a:+.1f}%"]
@@ -92,22 +84,18 @@ def correspondence():
          f"{100 * (model_js - real_js) / real_js:+.1f}%"],
         ["Jülich", "Densidad pico frente a la puerta (p/m2)", round(float(real_d.mean()), 3), "Real medido",
          round(float(sim_d.mean()), 3), "", "", f"{100 * (sim_d.mean() - real_d.mean()) / real_d.mean():+.1f}%"],
-        ["Cayalá", "Flujo pico por metro de portón (p/(m s))", f"{real_js:.2f} / {sfpe:.2f}", "Jülich / SFPE",
+        ["Cayalá", "Flujo pico por metro de portón (p/(m s))", round(real_js, 3), "Capacidad medida en Jülich",
          round(float(base["peak_flow"].mean()), 3), round(float(pso["peak_flow"].mean()), 3),
          *change(base["peak_flow"].mean(), pso["peak_flow"].mean())],
         ["Cayalá", "Densidad pico (p/m2)", "sin medición", "", round(float(base["d_max"].mean()), 3),
          round(float(pso["d_max"].mean()), 3), *change(base["d_max"].mean(), pso["d_max"].mean())],
         ["Cayalá", "T95 (s)", "sin medición", "", round(float(base["t95"].mean()), 1), round(float(pso["t95"].mean()), 1),
          *change(base["t95"].mean(), pso["t95"].mean())],
-        ["Cayalá", "Ancho de salida total (m)", f"{need_total:.2f} requerido", "NFPA 101", width_total, width_total,
-         0, "+0.0%"],
-        ["Cayalá", "Ancho de la salida principal (m)", f"{need_main:.2f} requerido", "NFPA 101", P.GATE_WIDTH,
-         P.GATE_WIDTH, 0, "+0.0%"],
     ]
     adjusted_density(real_d.mean() / sim_d.mean(), (real_d / sim_d).min(), (real_d / sim_d).max(), data)
     path = save("correspondencia", ["Escenario", "Métrica", "Referencia", "Tipo de referencia", "Modelo base",
                                     "Modelo PSO", "PSO - base", "Cambio"], rows, align="llrlrrrr")
-    return path, {"sfpe_per_m": sfpe, "fs_max": fs_max, "need_total": need_total, "need_main": need_main}
+    return path
 
 
 def adjusted_density(k, k_lo, k_hi, data):
@@ -124,7 +112,5 @@ def adjusted_density(k, k_lo, k_hi, data):
 
 
 if __name__ == "__main__":
-    path, extra = correspondence()
-    print(path.read_text())
-    print(extra)
+    print(correspondence().read_text())
     print(open(C.ROOT / "results/tables/densidad_julich.csv").read())

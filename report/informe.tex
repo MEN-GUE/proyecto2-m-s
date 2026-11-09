@@ -16,6 +16,8 @@
 \usepackage[spanish=mexican]{csquotes}
 \usepackage[style=authoryear,natbib=true,maxcitenames=2,uniquelist=false,uniquename=false]{biblatex}
 \addbibresource{referencias.bib}
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
 \graphicspath{{../results/figures/}}
 
 \newcommand{\autor}{Juan Fernando Men\'endez Guerra}
@@ -40,7 +42,7 @@
 \end{titlepage}
 
 \section*{Resumen}
-Al terminar un concierto en la Explanada Cayalá, cientos de personas salen al mismo tiempo y una parte pasa antes por las barras cashless. Este trabajo simula la zona sur de salida (80 por 50 m sobre el polígono real de OpenStreetMap) con un modelo de fuerzas sociales que incluye filas en 4 barras con 3 puntos de atención cada una. El modelo se calibró con trayectorias reales de Jülich (error de flujo del 9\,\%). Luego, un enjambre de partículas programado desde cero buscó la ubicación de las barras y de dos vallas que reduce la densidad pico y el tiempo en que sale el 95\,\% del público. Con 30 réplicas por condición, el montaje encontrado baja la densidad pico de 2.15 a 2.07 personas/m$^2$ ($-3.8$\,\%, intervalo del 95\,\% entre $-5.9$ y $-1.7$\,\%), pero no cambia el tiempo de salida ($-0.8$\,\%, no significativo). La ventaja en densidad se mantiene con 20\,\% más de público y con atención 50\,\% más lenta. En cambio, el tiempo de salida depende sobre todo de la velocidad de atención en las barras: crece 41\,\% cuando la atención es 50\,\% más lenta. El modelo reproduce bien el flujo real, pero subestima la densidad real en 34\,\%, así que los valores absolutos de densidad deben leerse con cautela. Todas las mejoras son simuladas.
+Al terminar un concierto en la Explanada Cayalá, cientos de personas salen al mismo tiempo y una parte pasa antes por las barras cashless. Este trabajo simula la zona sur de salida (80 por 50 m sobre el terreno real de la explanada, tomado de OpenStreetMap) con un modelo de fuerzas sociales que incluye filas en 4 barras con 3 puntos de atención cada una. El modelo se calibró con trayectorias reales de Jülich (error de flujo del 9\,\%). Luego, un enjambre de partículas programado desde cero buscó la ubicación de las barras y de dos vallas que reduce la densidad pico y el tiempo en que sale el 95\,\% del público. Con 30 réplicas por condición, el montaje encontrado baja la densidad pico de 2.28 a 2.12 personas/m$^2$ ($-7.1$\,\%, intervalo del 95\,\% entre $-8.2$ y $-6.0$\,\%) y el tiempo de salida apenas un 1.4\,\% (intervalo entre $-2.7$ y $-0.2$\,\%). La ventaja en densidad se mantiene con 20\,\% más de público y con atención 50\,\% más lenta. En cambio, el tiempo de salida depende sobre todo de la velocidad de atención en las barras: crece 40\,\% cuando la atención es 50\,\% más lenta. El modelo reproduce bien el flujo real, pero subestima la densidad real en 34\,\%, así que los valores absolutos de densidad deben leerse con cautela. Todas las mejoras son simuladas.
 
 \tableofcontents
 \newpage
@@ -48,19 +50,19 @@ Al terminar un concierto en la Explanada Cayalá, cientos de personas salen al m
 \section{Problema y delimitaci\'on}
 
 \subsection{Contexto}
-La Explanada Cardales de Cayal\'a, en la zona 16 de la Ciudad de Guatemala, es un espacio abierto que se usa para conciertos grandes. Para los conciertos de noviembre de 2022 las autoridades esperaban m\'as de 15 mil personas por d\'ia \citep{prensalibre2022}. Al terminar el concierto casi todo el p\'ublico sale al mismo tiempo. Una parte va primero a las barras cashless a comprar o a devolver saldo, y el resto camina directo a los portones. Las filas de las barras y el flujo hacia la salida se cruzan, y en esos puntos la gente se amontona.
+La Explanada Cayal\'a, en la zona 16 de la Ciudad de Guatemala, es un terreno abierto que se usa para conciertos grandes. Para los conciertos de noviembre de 2022 las autoridades esperaban m\'as de 15 mil personas por d\'ia \citep{prensalibre2022}. Al terminar el concierto casi todo el p\'ublico sale al mismo tiempo. Una parte va primero a las barras cashless a comprar o a devolver saldo, y el resto camina directo a los portones. Las filas de las barras y el flujo hacia la salida se cruzan, y en esos puntos la gente se amontona.
 
 Cuando la densidad pasa de unas 4 personas por metro cuadrado el contacto f\'isico se vuelve inevitable y la circulaci\'on casi se detiene \citep{fruin1971}. Por eso la ubicaci\'on de barras y vallas no es un detalle de decoraci\'on: decide d\'onde se forman los tapones.
 
 \subsection{Zona modelada}
-No se modela toda la explanada sino la zona cr\'itica de salida. En OpenStreetMap no existe un elemento llamado ``Explanada Cayal\'a''. Se usa el lote abierto m\'as grande junto a Cardales de Cayal\'a (way 688526225, 8555 m$^2$) \citep{osm688526225}, que coincide con la ubicaci\'on de la ``Explanada Cardales'' que menciona la nota de prensa \citep{prensalibre2022}. Esta identificaci\'on es una suposici\'on del autor.
+No se modela toda la explanada sino la zona cr\'itica de salida. La explanada es el terreno abierto al norte de los campos de Futeca, junto al Bulevar Austriaco, que en OpenStreetMap aparece con el nombre ``Arena Gallo'' (way 1569890595, 52\,297 m$^2$) \citep{osm1569890595}. Ese elemento fue agregado al mapa el 20 de octubre de 2026 y est\'a etiquetado como zona en construcci\'on. La identificaci\'on la hizo el autor, que conoce el lugar. Es un descampado: el escenario, las barras y los accesos se arman de forma distinta en cada evento, as\'i que ninguna disposici\'on es la \'unica correcta.
 
-Sobre ese pol\'igono real se coloca una ventana de 80 por 50 metros en el extremo sur. El dominio es la intersecci\'on de ambos y mide 3145 m$^2$. Los bordes oeste y sur y la esquina recortada del sureste son bordes reales del lote. Los bordes norte y este son cortes de la ventana y se tratan como paredes. La Figura~\ref{fig:recinto} muestra el pol\'igono, la ventana y el montaje base.
+Sobre ese pol\'igono real se coloca una ventana de 80 por 50 metros en el extremo sur, la parte pavimentada que da hacia la rotonda del bulevar y hacia el acceso de Futeca. El dominio es la intersecci\'on de ambos y mide 2877 m$^2$. Los bordes oeste (hacia el bulevar) y sur (hacia la rotonda y Futeca) son bordes reales del terreno. Los bordes norte y este son cortes de la ventana y se tratan como paredes; al norte sigue el resto de la explanada, de donde viene el p\'ublico. La Figura~\ref{fig:recinto} muestra el pol\'igono, la ventana y el montaje base.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{fig_recinto.png}
-\caption{Izquierda: lote real de OpenStreetMap y ventana modelada. Derecha: dominio, portones, montaje base con las cuatro barras en el borde oeste y zona donde inicia el p\'ublico. Los tri\'angulos marcan los puntos de atenci\'on de cada barra.}
+\caption{Izquierda: terreno real de la explanada en OpenStreetMap (Arena Gallo) y ventana modelada. Derecha: dominio, portones, montaje base con las cuatro barras en el borde oeste y zona donde inicia el p\'ublico. Los tri\'angulos marcan los puntos de atenci\'on de cada barra.}
 \label{fig:recinto}
 \end{figure}
 
@@ -69,7 +71,7 @@ Sobre ese pol\'igono real se coloca una ventana de 80 por 50 metros en el extrem
 \item \textbf{Asistentes}: cada persona camina hacia su objetivo, evita a las dem\'as y evita paredes y mobiliario. El 35\,\% decide pasar por una barra.
 \item \textbf{Barras cashless}: cuatro m\'odulos de 2 por 6 metros con tres puntos de atenci\'on cada uno. Cada punto atiende a una persona a la vez en orden de llegada.
 \item \textbf{Vallas encauzadoras}: dos vallas met\'alicas de 6 metros que ordenan el flujo frente a los portones. El montaje base no las usa.
-\item \textbf{Portones}: dos salidas de 4 metros de ancho en el borde sur.
+\item \textbf{Portones}: dos salidas de 4 metros de ancho en el borde sur, una cerca de la esquina suroeste (hacia la rotonda) y otra 26 m al este (hacia el acceso de Futeca).
 \end{itemize}
 
 \subsection{Pregunta de investigaci\'on}
@@ -110,8 +112,8 @@ Se supone terreno plano, buena iluminaci\'on y un cierre normal, sin p\'anico. T
 \toprule
 Dato & Tipo & Fuente \\
 \midrule
-Pol\'igono del lote & Real & OpenStreetMap, consulta del 8 de noviembre de 2026 \\
-Ventana y posici\'on de portones & Estimaci\'on & Elecci\'on del autor sobre el pol\'igono real \\
+Pol\'igono de la explanada (Arena Gallo) & Real & OpenStreetMap, consulta del 9 de noviembre de 2026 \\
+Ventana y posici\'on de portones & Estimaci\'on & Elecci\'on del autor sobre el pol\'igono real, del lado de los accesos \\
 Tama\~no de barras y vallas & Estimaci\'on & Medidas t\'ipicas de mobiliario de eventos \\
 Posici\'on inicial y compras & Sint\'etico & Generado con semillas fijas \\
 \bottomrule
@@ -175,11 +177,11 @@ Antes de simular, cada montaje pasa por un validador escrito para este proyecto.
 \item Dos muebles no se tocan ni dejan entre sí un paso menor a 1.12 metros.
 \item Ningún mueble entra en el círculo de 5 metros alrededor de cada portón.
 \item Frente a la cara de atención de cada barra quedan 8 metros libres para la fila, fuera de ese círculo.
-\item Desde toda zona por donde se camina se puede llegar a un portón por pasos de al menos 1.12 metros. Esto se comprueba con el algoritmo de Dijkstra sobre las celdas.
+\item Desde toda zona por donde se camina se puede llegar a un portón por pasos de al menos 1.12 metros. Esto se comprueba con el algoritmo de Dijkstra sobre las celdas. No se cuentan las celdas que ya quedan aisladas con el recinto vacío, como la punta de una esquina muy aguda del terreno, porque eso no lo causa ningún mueble.
 \end{enumerate}
 Cada regla incumplida suma a la penalización $P_{\text{geom}}$ el área en metros cuadrados donde ocurre. Un montaje es válido solo si $P_{\text{geom}} = 0$. Si no lo es, no se simula y recibe $J = 10 + \lambda_{\text{geom}} P_{\text{geom}}$, un valor mucho peor que el de cualquier montaje válido (cerca de 1). Así el enjambre sabe cuánto se equivocó y hacia dónde corregir.
 
-La Tabla~\ref{tab:factibilidad} muestra que solo el 3.3\,\% de los montajes tomados al azar cumplen todas las reglas. La regla que más falla es la de la zona de fila. La zona válida es pequeña y está partida en pedazos, por lo que en la búsqueda real el enjambre arranca con partículas válidas.
+La Tabla~\ref{tab:factibilidad} muestra que solo el 1\,\% de los montajes tomados al azar cumple todas las reglas. La regla que más falla es la de la zona de fila. La zona válida es pequeña y está partida en pedazos, por lo que en la búsqueda real el enjambre arranca con partículas válidas.
 
 \begin{table}[H]
 \centering
@@ -191,7 +193,7 @@ La Tabla~\ref{tab:factibilidad} muestra que solo el 3.3\,\% de los montajes toma
 \subsection{Por qué PSO y no otra técnica}
 La función que se quiere minimizar sale de una simulación con azar, colas y eventos discretos. No tiene derivadas y cambia un poco entre semillas, así que los métodos basados en gradiente no sirven. Entre los métodos que no usan derivadas, se eligió PSO por tres razones:
 \begin{itemize}
-\item Cada partícula se mueve de forma continua, así que un montaje cambia poco a poco y conserva su sentido geométrico. En un algoritmo genético el cruce mezcla coordenadas de montajes distintos y suele producir barras encimadas, lo que aquí es grave porque solo el 3.3\,\% del espacio es válido.
+\item Cada partícula se mueve de forma continua, así que un montaje cambia poco a poco y conserva su sentido geométrico. En un algoritmo genético el cruce mezcla coordenadas de montajes distintos y suele producir barras encimadas, lo que aquí es grave porque solo el 1\,\% del espacio es válido.
 \item Tiene pocos parámetros y valores recomendados en la literatura.
 \item Las 12 partículas de una iteración se evalúan al mismo tiempo en varios núcleos.
 \end{itemize}
@@ -265,12 +267,12 @@ donde $F^n_\alpha$ es la suma de las repulsiones. La rapidez se limita a $1.3\, 
 El modelo completo de \citet{helbing2000} agrega fuerzas de contacto físico con constantes muy grandes. Con $\Delta t = 0.05$ s esas fuerzas vuelven inestable el cálculo, y además describen empujones de pánico, que quedan fuera del estudio. Por eso se usa solo la ecuación de arriba. La consecuencia es que el modelo no representa bien multitudes apretadas por encima de unas 4 o 5 personas por m$^2$ (ver las Secciones~\ref{sec:limites} y \ref{sec:real}).
 
 \subsection{Hacia dónde camina cada persona}
-Si la dirección deseada apuntara en línea recta al objetivo, las personas se quedarían atoradas detrás de barras y vallas. Por eso, para cada escena se calculan mapas de distancia con el algoritmo de Dijkstra sobre celdas de 0.25 m: uno hacia los portones y uno hacia la zona de fila de cada barra. Las celdas cerca de muros cuestan más, así que las rutas guardan algo de distancia de las paredes. La dirección $e^0_\alpha$ es la de mayor descenso del mapa en la celda donde está la persona. Cuando un comprador está a menos de 2.5 m de su lugar en la fila, camina directo hacia ese lugar.
+Si la dirección deseada apuntara en línea recta al objetivo, las personas se quedarían atoradas detrás de barras y vallas. Por eso, para cada escena se calculan mapas de distancia con el algoritmo de Dijkstra sobre celdas de 0.25 m: uno hacia los portones y uno hacia la zona de fila de cada barra. Las celdas cerca de muros cuestan más, así que las rutas guardan algo de distancia de las paredes. En el mapa hacia los portones, las zonas de fila cuestan 4 veces más: quien va a la salida prefiere rodear las filas antes que atravesarlas. La dirección $e^0_\alpha$ es la de mayor descenso del mapa en la celda donde está la persona. Un comprador, esté o no formado, usa el mapa de su barra para rodear obstáculos y solo camina en línea recta hacia su lugar en la fila cuando está a menos de 2.5 m o ya dentro de la zona de fila.
 
 \subsection{Reglas}
 \begin{enumerate}
 \item \textbf{Al inicio} se sortean para cada persona su rapidez deseada, su radio, si compra y su tiempo de atención. Todas aparecen en la franja norte del recinto, separadas al menos 0.6 m. Los compradores, en orden aleatorio, eligen la barra con menos personas asignadas (si empatan, la más cercana) y dentro de ella el punto de atención con menos gente. Hacer la elección en orden y actualizando los conteos evita que todos escojan la misma barra cuando al inicio todas están vacías.
-\item \textbf{Filas}: un comprador entra a su fila al llegar a menos de 1 m del último lugar. Los lugares están separados 0.8 m hacia el este del punto de atención. Cuando el primero de la fila está a menos de 1 m del punto de atención y este está libre, empieza su atención. Al terminarla, la persona cambia su objetivo al portón más cercano y la fila avanza. Un comprador que en 2 minutos no logró entrar a una fila desiste y se va.
+\item \textbf{Filas}: un comprador entra a su fila al llegar a menos de 1 m del último lugar. Los lugares están separados 0.8 m hacia el este del punto de atención. Cuando el primero de la fila está a menos de 1 m del punto de atención y este está libre, empieza su atención. Al terminarla, la persona cambia su objetivo al portón más cercano y la fila avanza. Si el primero de la fila no logra llegar a su punto de atención en 20 s, se le atiende igual: en la realidad pediría permiso para abrirse paso entre las filas vecinas, algo que el modelo de fuerzas no representa. Un comprador que en 2 minutos no logró entrar a una fila desiste y se va.
 \item \textbf{Movimiento}: en cada paso se calculan las fuerzas usando una grilla de vecinos de 2 por 2 m, de modo que cada persona solo revisa a quienes están en su celda y en las 8 vecinas.
 \item \textbf{Salida}: una persona sale cuando cruza un portón y está 0.3 m afuera. Esto vale para todos, incluso para quien estaba en una fila y fue empujado por la multitud; en ese caso la fila lo salta. Todo comprador que sale sin haber sido atendido se registra como ``salió sin comprar''. Estas reglas evitan que una fila quede trabada para siempre por una persona que ya no puede llegar al punto de atención.
 \item \textbf{Registro}: cada 0.5 s se calcula la densidad con un kernel gaussiano de $\sigma = 0.7$ m sobre celdas de 0.5 m \citep{helbing2007}, solo en zonas transitables.
@@ -292,11 +294,11 @@ La rapidez deseada es normal con media 1.34 m/s y desviación 0.26 m/s, recortad
 $D_{\max}$ es el valor más alto del mapa de densidad en todo el recorrido. $T_{95}$ es el tiempo en que sale la persona número $\lceil 0.95 N \rceil$. Además se registran el flujo pico por portón (personas que cruzan en 10 s, divididas entre 10 s y 4 m) y cuántos compradores salieron sin comprar.
 
 \subsection{Implementación y reproducibilidad}
-No hay una clase por persona: todo el estado vive en arreglos de NumPy y el ciclo principal se compila con Numba \citep{lam2015}. Con la grilla de vecinos y una lista de muros cercanos por celda, el costo de cada paso crece de forma lineal con el número de personas. Una evacuación completa con 500 personas tarda entre 0.3 y 0.4 s en un solo núcleo, y las 180 corridas del experimento se hacen en unos 15 s usando 18 núcleos.
+No hay una clase por persona: todo el estado vive en arreglos de NumPy y el ciclo principal se compila con Numba \citep{lam2015}. Con la grilla de vecinos y una lista de muros cercanos por celda, el costo de cada paso crece de forma lineal con el número de personas. Una evacuación completa con 500 personas tarda cerca de 0.8 s en un solo núcleo, y las 180 corridas del experimento se hacen en unos 30 s usando 18 núcleos.
 
 Todo el azar se sortea antes de empezar, con un generador separado para cada parte (rapidez y radio, compras y atención, posición inicial, orden de elección). Así, con la misma semilla las mismas personas participan en cualquier montaje, lo que hace más justa la comparación entre montajes. El código está en cuatro paquetes: \texttt{model} (geometría, parámetros, validador), \texttt{simulation} (motor y corridas), \texttt{optimizer} (PSO) y \texttt{visualization} (figuras, tablas y web). Todo se reproduce desde un entorno limpio con los pasos del README.
 
-La Figura~\ref{fig:instantaneas} muestra una corrida del montaje base. A los 20 s el flujo que va al portón oeste pasa justo frente a las filas de las barras, que es el conflicto que se busca resolver. A los 45 s casi todos los que no compran ya salieron y quedan las filas, que se vacían lentamente.
+La Figura~\ref{fig:instantaneas} muestra una corrida del montaje base. A los 20 s el público se divide en dos corrientes, una hacia cada portón. A los 45 s la corriente que va al portón suroeste baja pegada al extremo de las filas de las barras y se aprieta entre ellas y el portón, que es el conflicto que se busca resolver. A los 150 s casi todos los que no compran ya salieron y quedan las filas, que se vacían lentamente.
 
 \begin{figure}[H]
 \centering
@@ -369,7 +371,7 @@ donde la barra indica el promedio sobre las 3 semillas de búsqueda. $D_{\text{b
 \end{table}
 
 \subsection{Cómo se conectan el enjambre y el simulador}
-En cada iteración se decodifican los 12 vectores en montajes, se pasan por el validador y los válidos se simulan con las semillas 1, 2 y 3, cada partícula en un proceso distinto. Con los valores de $J$ el enjambre actualiza velocidades y posiciones. El enjambre arranca con 12 montajes válidos tomados al azar: se generan montajes hasta encontrar 12 que pasen el validador. Cada iteración tarda entre 2 y 3 segundos y la búsqueda completa, unos 2 minutos.
+En cada iteración se decodifican los 12 vectores en montajes, se pasan por el validador y los válidos se simulan con las semillas 1, 2 y 3, cada partícula en un proceso distinto. Con los valores de $J$ el enjambre actualiza velocidades y posiciones. El enjambre arranca con 12 montajes válidos tomados al azar: se generan montajes hasta encontrar 12 que pasen el validador. Cada iteración tarda unos pocos segundos y la búsqueda completa, con sus cuatro corridas, entre 2 y 3 minutos.
 
 La búsqueda se repitió con tres semillas del enjambre (11, 12 y 13). Como 3 semillas de simulación dan un promedio con ruido, el mejor montaje de cada reinicio se volvió a evaluar con 10 semillas nuevas (2001 a 2010), y el ganador es el que obtuvo el menor $J$ con ellas. Las semillas 1001 a 1030, que se usan en el experimento final, no se tocan durante la búsqueda ni la selección; así la comparación final no está sesgada a favor del montaje elegido.
 
@@ -383,9 +385,9 @@ Se hizo además una corrida extra con la semilla 13 que no se detiene antes de l
 \resizebox{\textwidth}{!}{\input{../results/tables/pso_reinicios.tex}}
 \end{table}
 
-Los tres reinicios encontraron montajes con $J$ entre 0.96 y 0.98 durante la búsqueda (Tabla~\ref{tab:reinicios}). Con semillas nuevas, solo el del reinicio 13 sigue por debajo de 1 (0.980); los otros dos quedan apenas peor que la base (1.004 y 1.006). Los valores de la búsqueda son optimistas porque, entre muchas evaluaciones con ruido, el enjambre se queda con la que salió mejor por azar. Por eso hacía falta el paso de selección.
+Los tres reinicios encontraron montajes con $J$ entre 0.93 y 0.95 durante la búsqueda (Tabla~\ref{tab:reinicios}). Con semillas nuevas los tres siguen por debajo de 1, pero más cerca: entre 0.956 y 0.967. Los valores de la búsqueda son optimistas porque, entre muchas evaluaciones con ruido, el enjambre se queda con la que salió mejor por azar. Por eso hacía falta el paso de selección.
 
-El montaje ganador (Figura~\ref{fig:layouts}) saca las barras del borde oeste: tres quedan en el norte, cerca de donde empieza el público, y una en el centro. Una valla queda casi horizontal unos 6 m al norte del portón suroeste y parte en dos el flujo que llega a ese portón; la otra queda en diagonal frente al portón sureste. Con las semillas de selección, la densidad pico baja de 2.132 a 2.056 personas/m$^2$ y $T_{95}$ queda prácticamente igual (242.9 s en la base y 243.9 s con el PSO).
+El montaje ganador, del reinicio 13 (Figura~\ref{fig:layouts}), saca las barras del borde oeste y las agrupa en dos pares en el centro y el norte, lejos del camino hacia los portones. Una valla queda casi vertical entre los dos portones y separa las corrientes que van a cada uno; la otra queda en diagonal unos 14 m al norte del portón suroeste y ordena la llegada a ese portón. Con las semillas de selección, la densidad pico baja de 2.276 a 2.118 personas/m$^2$ y $T_{95}$ de 247.5 a 245.7 s.
 
 \begin{figure}[H]
 \centering
@@ -395,7 +397,7 @@ El montaje ganador (Figura~\ref{fig:layouts}) saca las barras del borde oeste: t
 \end{figure}
 
 \subsection{Verificación de restricciones}
-La Tabla~\ref{tab:restricciones} muestra la comprobación por código para la base y el montaje PSO. Ninguno saca muebles del recinto, deja pasos angostos, invade el radio de 5 m de los portones, tapa la zona de fila ni deja áreas sin salida. En las 10 corridas de selección, el mapa de densidad suavizado nunca pasa de 4 personas por m$^2$ en ninguna celda transitable. El valor más alto fue 2.32 en la base y 2.20 con el PSO. Con 500 personas en esta zona, el límite de 4 no llega a estar en juego dentro del modelo; la Sección 7 muestra que el modelo subestima la densidad real, así que el margen verdadero es menor.
+La Tabla~\ref{tab:restricciones} muestra la comprobación por código para la base y el montaje PSO. Ninguno saca muebles del recinto, deja pasos angostos, invade el radio de 5 m de los portones, tapa la zona de fila ni deja áreas sin salida. En las 10 corridas de selección, el mapa de densidad suavizado nunca pasa de 4 personas por m$^2$ en ninguna celda transitable. El valor más alto fue 2.33 en la base y 2.22 con el PSO. Con 500 personas en esta zona, el límite de 4 no llega a estar en juego dentro del modelo; la Sección 7 muestra que el modelo subestima la densidad real, así que el margen verdadero es menor.
 
 \begin{table}[H]
 \centering
@@ -407,15 +409,15 @@ La Tabla~\ref{tab:restricciones} muestra la comprobación por código para la ba
 \subsection{Análisis de estancamiento}
 La Figura~\ref{fig:convergencia} muestra cómo avanzó cada búsqueda.
 \begin{itemize}
-\item \textbf{Mejoras en escalones y paro temprano.} El mejor valor baja en las primeras iteraciones y luego se queda quieto. La regla de paro cortó las búsquedas entre las iteraciones 6 y 16.
-\item \textbf{Muchas evaluaciones perdidas.} Después del arranque, entre el 60 y el 79\,\% de las partículas de cada iteración cae en montajes inválidos. La zona válida es pequeña y está partida: para pasar de un buen montaje a otro, las partículas atraviesan montajes inválidos, que no se simulan. En la práctica, cada iteración evalúa de verdad solo 3 a 5 montajes.
-\item \textbf{Varios óptimos de calidad parecida.} Los ganadores de los tres reinicios no coinciden: aun emparejando cada barra con la más cercana del otro montaje, el del reinicio 13 está a 9 y 12 m en promedio por barra de los otros dos, y estos dos están a 6 m entre sí, con valores de $J$ muy parecidos. Esto indica varios óptimos locales o un paisaje casi plano comparado con el ruido.
+\item \textbf{Mejoras en escalones y paro temprano.} El mejor valor baja en las primeras iteraciones y luego se queda quieto. La regla de paro cortó las búsquedas entre las iteraciones 5 y 12. En el reinicio 11 el enjambre nunca superó al mejor de sus montajes iniciales tomados al azar.
+\item \textbf{Muchas evaluaciones perdidas.} Después del arranque, entre el 60 y el 87\,\% de las partículas de cada iteración cae en montajes inválidos. La zona válida es pequeña y está partida: para pasar de un buen montaje a otro, las partículas atraviesan montajes inválidos, que no se simulan. En la práctica, cada iteración evalúa de verdad solo 2 a 5 montajes.
+\item \textbf{Varios óptimos de calidad parecida.} Los ganadores de los tres reinicios no coinciden: aun emparejando cada barra con la más cercana del otro montaje, difieren entre 9 y 16 m en promedio por barra, con valores de $J$ muy parecidos. Esto indica varios óptimos locales o un paisaje casi plano comparado con el ruido.
 \item \textbf{Simetría.} Las cuatro barras son iguales, así que cada montaje aparece 24 veces en el espacio de búsqueda con las barras en distinto orden. El enjambre puede repartirse entre copias equivalentes y eso frena la convergencia.
-\item \textbf{Ruido.} Entre semillas, $D_{\max}$ varía unos 0.1 personas/m$^2$ y $T_{95}$ unos 14 s (Sección~\ref{sec:experimento}). Con 3 semillas, eso da un error típico de unos 0.02 en $J$, del mismo tamaño que las mejoras encontradas.
-\item \textbf{Efecto de la regla de paro.} Sin paro temprano, la diversidad baja de 0.53 a 0.29 y $J$ de selección mejora apenas de 0.980 a 0.972, mientras las barras se mueven unos 6 m en promedio. Más iteraciones refinan el mismo óptimo, no encuentran otro claramente mejor.
+\item \textbf{Ruido.} Entre semillas, $D_{\max}$ varía unos 0.05 personas/m$^2$ y $T_{95}$ unos 15 s (Sección~\ref{sec:experimento}). Con 3 semillas, eso da un error típico de unos 0.016 en $J$, comparable con las diferencias entre los mejores montajes.
+\item \textbf{Efecto de la regla de paro.} Sin paro temprano, la diversidad baja de 0.39 a 0.17 y $J$ de búsqueda mejora de 0.952 a 0.927, pero con semillas nuevas el resultado es peor (0.960 contra 0.956), mientras las barras se mueven unos 5 m. Más iteraciones afinan el montaje para las 3 semillas de búsqueda, es decir, se ajustan a su ruido, sin encontrar un montaje mejor.
 \end{itemize}
 
-Con este presupuesto, el PSO funciona más como una búsqueda guiada entre montajes válidos que como un método que converge al mejor montaje. La mejora encontrada es pequeña, y la Sección siguiente la pone a prueba con 30 réplicas.
+Con este presupuesto, el PSO funciona más como una búsqueda guiada entre montajes válidos que como un método que converge al mejor montaje. La mejora encontrada es moderada, y la Sección siguiente la pone a prueba con 30 réplicas.
 
 \begin{figure}[H]
 \centering
@@ -458,7 +460,7 @@ Además de las tres pruebas de la Sección 3, se revisaron las 180 corridas del 
 \input{../results/tables/resumen_condiciones.tex}
 \end{table}
 
-La Figura~\ref{fig:curvas} muestra el avance de la salida. En las cuatro condiciones, cerca del 65\,\% del público sale en el primer minuto: son quienes no compran. Después la curva se vuelve lenta, porque depende de qué tan rápido atienden las barras. La Figura~\ref{fig:violines} muestra la dispersión de las dos métricas principales.
+La Figura~\ref{fig:curvas} muestra el avance de la salida. En el primer minuto sale entre el 58 y el 66\,\% del público, casi todos quienes no compran; con el montaje PSO salen antes que con la base. Después la curva se vuelve lenta, porque depende de qué tan rápido atienden las barras. La Figura~\ref{fig:violines} muestra la dispersión de las dos métricas principales.
 
 \begin{figure}[H]
 \centering
@@ -475,11 +477,11 @@ La Figura~\ref{fig:curvas} muestra el avance de la salida. En las cuatro condici
 \end{figure}
 
 \subsection{Base contra PSO}
-La Tabla~\ref{tab:comparaciones} compara réplica por réplica (prueba t pareada). Con 500 personas y atención normal, el montaje PSO baja la densidad pico de 2.148 a 2.067 personas/m$^2$: una diferencia de $-0.082$ con intervalo del 95\,\% de $[-0.127, -0.037]$, es decir, entre 1.7 y 5.9\,\% menos. En $T_{95}$ la diferencia es de $-2.0$ s con intervalo $[-5.1, 1.2]$: no se puede afirmar que cambie.
+La Tabla~\ref{tab:comparaciones} compara réplica por réplica (prueba t pareada). Con 500 personas y atención normal, el montaje PSO baja la densidad pico de 2.281 a 2.119 personas/m$^2$: una diferencia de $-0.162$ con intervalo del 95\,\% de $[-0.186, -0.138]$, es decir, entre 6.0 y 8.2\,\% menos. En $T_{95}$ la diferencia es de $-3.6$ s con intervalo $[-6.7, -0.5]$: una mejora pequeña (1.4\,\%) pero significativa.
 
-La columna de correlación muestra que comparar con las mismas semillas sí ayuda en $T_{95}$ (0.84), porque el tiempo depende sobre todo de cuántos compran y cuánto tardan, y eso es igual en ambos montajes. En la densidad pico la correlación es casi cero: el pico depende de dónde y cuándo se juntan los flujos, y eso cambia con el montaje.
+La columna de correlación muestra que comparar con las mismas semillas ayuda mucho en $T_{95}$ (0.85), porque el tiempo depende sobre todo de cuántos compran y cuánto tardan, y eso es igual en ambos montajes. En la densidad pico la correlación es baja (0.31): el pico depende de dónde y cuándo se juntan los flujos, y eso cambia con el montaje.
 
-La Figura~\ref{fig:mapa} explica de dónde sale la mejora. En la base, quienes van al portón suroeste bajan por un solo carril pegado a las filas de las cuatro barras. Con el PSO, la valla frente a ese portón parte el flujo en dos carriles y las barras ya no están en ese camino. En el portón sureste el pico se mantiene en los dos montajes.
+La Figura~\ref{fig:mapa} explica de dónde sale la mejora. En la base, quienes van al portón suroeste bajan pegados al extremo de las filas de las cuatro barras y se aprietan entre las colas y el portón; frente al portón sureste se forma otro punto denso. Con el PSO las barras ya no están en ese camino, la valla vertical separa las corrientes que van a cada portón y la valla diagonal ordena la llegada al portón suroeste. El punto más denso sigue frente al portón sureste, pero es menos intenso.
 
 \begin{figure}[H]
 \centering
@@ -496,11 +498,11 @@ La Figura~\ref{fig:mapa} explica de dónde sale la mejora. En la base, quienes v
 \end{table}
 
 \subsection{Sensibilidad}
-\textbf{Sobrecupo (600 personas, 20\,\% más).} Con el montaje PSO, la densidad pico sube 5.4\,\% y $T_{95}$ sube 16.1\,\% (unos 40 s). El PSO sigue teniendo menos densidad que la base con el mismo sobrecupo ($-5.6$\,\%), pero ahora su $T_{95}$ es 2.6\,\% mayor, y esa diferencia sí es significativa. Las barras del PSO están en el norte, donde empieza el público; con más gente, las filas y el flujo de salida se estorban más en esa zona.
+\textbf{Sobrecupo (600 personas, 20\,\% más).} Con el montaje PSO, la densidad pico sube 5.5\,\% y $T_{95}$ sube 14.3\,\% (unos 36 s). Frente a la base con el mismo sobrecupo, el PSO sigue teniendo menos densidad ($-4.8$\,\%) y un $T_{95}$ 1.4\,\% menor, aunque esta última diferencia está justo en el límite de ser significativa ($p = 0.05$).
 
-\textbf{Terminal lenta (atención media de 24.6 s, 50\,\% más).} $T_{95}$ sube 40.7\,\% (unos 100 s) y la densidad pico no cambia. El pico ocurre en el primer minuto, cuando salen quienes no compran, así que no depende de la atención. El tiempo, en cambio, crece casi en proporción a la lentitud de las barras, porque el final de la salida lo marcan las filas. Con la terminal lenta, la base y el PSO tardan lo mismo.
+\textbf{Terminal lenta (atención media de 24.6 s, 50\,\% más).} $T_{95}$ sube 40.4\,\% (unos 101 s) y la densidad pico no cambia. El pico ocurre en el primer minuto, cuando salen quienes no compran, así que no depende de la atención. El tiempo, en cambio, crece casi en proporción a la lentitud de las barras, porque el final de la salida lo marcan las filas. Con la terminal lenta, el PSO mantiene $-7.0$\,\% en densidad, pero la diferencia en $T_{95}$ ($-1.2$\,\%) ya no es significativa.
 
-En resumen, el diseño PSO mantiene su ventaja en densidad en los tres escenarios, pero no mejora el tiempo de salida en ninguno. Lo que más mueve el tiempo es la capacidad de atención de las barras, no su ubicación.
+En resumen, el diseño PSO mantiene una ventaja clara en densidad en los tres escenarios y una ventaja pequeña en tiempo de salida, que se nota con la demanda normal y se diluye cuando la atención es lenta. Lo que más mueve el tiempo es la capacidad de atención de las barras, no su ubicación.
 
 \subsection{Incertidumbre, límites y riesgo de extrapolar}
 \label{sec:limites}
@@ -509,19 +511,14 @@ En resumen, el diseño PSO mantiene su ventaja en densidad en los tres escenario
 \item \textbf{Validez del modelo.} El modelo no tiene fuerzas de contacto físico. Sin ellas, las personas guardan entre sí una distancia que limita la densidad a unas 2 a 3 personas por m$^2$ en condiciones normales. Por encima de 4 o 5 personas por m$^2$ aparecen en la realidad la compresión y los empujones en cadena \citep{helbing2007}, que este modelo no representa. Por eso la comprobación del límite de 4 solo tiene sentido mientras la densidad simulada esté lejos de ese valor. Además, frente a los datos de Jülich el modelo subestima la densidad pico en 34\,\% (Sección 7), lo que reduce el margen real.
 \item \textbf{Relación casi lineal.} Mientras las barras sean el cuello de botella, $T_{95}$ crece casi en proporción al tiempo de atención y al número de compradores. Esa relación deja de valer si los portones se saturan (con mucha más gente) o si la multitud se comprime; ahí el tiempo puede crecer mucho más rápido.
 \item \textbf{Extrapolación.} Se modelan 500 a 600 personas en una ventana de 80 por 50 m, cuando en un concierto real hay más de 15 mil en todo el recinto. El modelo se calibró con puertas de 0.9 a 2.5 m y personas jóvenes en laboratorio. Los resultados no deben usarse para emergencias, pánico, lluvia, otras posiciones de portones ni multitudes mucho más grandes sin calibrar de nuevo.
-\item \textbf{Supuestos sin dato real.} La posición de los portones, el tamaño de las barras, la variación del tiempo de atención, la regla de desistir a los 2 minutos y la posición inicial del público son estimaciones. Cambiarlas puede cambiar el resultado.
+\item \textbf{Supuestos sin dato real.} La posición de los portones, el tamaño de las barras, la variación del tiempo de atención, las reglas de desistir a los 2 minutos y de atender al primero que no llega en 20 s, el costo de cruzar zonas de fila y la posición inicial del público son estimaciones. Cambiarlas puede cambiar el resultado.
 \end{itemize}
 
 \section{Comparación con la vida real}
 \label{sec:real}
 
 \subsection{Fuentes de referencia}
-No existen mediciones públicas de flujos, densidades o tiempos de salida en la Explanada Cayalá. La nota de prensa solo da el aforo esperado. Por eso la comparación usa tres referencias de distinta naturaleza, que se separan con cuidado:
-\begin{itemize}
-\item \textbf{Datos reales medidos}: las trayectorias de Jülich descritas en la Sección 4 (2006, Düsseldorf, 10 corridas de 170 a 179 personas, 25 cuadros por segundo). Son observaciones de personas reales, pero en laboratorio y en una geometría distinta a la del recinto.
-\item \textbf{Norma}: NFPA 101 \citep{nfpa101}. Para componentes a nivel, como puertas y portones, exige 5 mm de ancho por persona (Tabla 7.3.3.1). En lugares de reunión con público de pie, la salida principal debe dar cabida a dos tercios del aforo (12.2.3.6). No es una medición sino un requisito de diseño. Como el texto de la norma no es de libre acceso, estas cifras se verificaron en guías de estudio y listas de revisión municipales que citan esas secciones.
-\item \textbf{Guía de ingeniería}: el modelo hidráulico del manual de la SFPE \citep{sfpe2016}. Con velocidad $S = 1.40\,(1 - 0.266\,D)$, el flujo máximo por metro de ancho efectivo es $1.40/(4 \times 0.266) = 1.32$ personas/(m s). Si a cada lado del portón se descuentan 0.15 m de ``capa límite'', un portón de 4 m deja pasar 1.22 personas/(m s) por metro nominal. Es un valor de diseño, conservador a propósito.
-\end{itemize}
+No existen mediciones públicas de flujos, densidades o tiempos de salida en la Explanada Cayalá. La nota de prensa solo da el aforo esperado. Por eso la referencia real son las trayectorias de Jülich descritas en la Sección 4 (2006, Düsseldorf, 10 corridas de 170 a 179 personas, 25 cuadros por segundo). Son observaciones de personas reales, pero en laboratorio y en una geometría distinta a la del recinto. No se usaron valores de normas ni de manuales de diseño, porque no se tuvo acceso directo a sus textos para verificar las cifras.
 
 \subsection{Qué tan bien corresponde el modelo base}
 Antes de interpretar la mejora hay que ver qué tan cerca está el modelo base de la realidad. En el escenario de Jülich se puede medir lo mismo en los datos reales y en la simulación.
@@ -550,19 +547,18 @@ La Tabla~\ref{tab:correspondencia} reúne, con las mismas unidades, la referenci
 
 \begin{table}[H]
 \centering
-\caption{Correspondencia entre referencia real o normativa, modelo base y modelo PSO (30 réplicas en Cayalá). ``Sin medición'' indica que no hay dato real público para ese recinto. En las filas de Jülich, ``Cambio'' es la diferencia del modelo respecto al dato real; en las de Cayalá, la del PSO respecto a la base.}
+\caption{Correspondencia entre referencia real, modelo base y modelo PSO (30 réplicas en Cayalá). ``Sin medición'' indica que no hay dato real público para ese recinto. En las filas de Jülich, ``Cambio'' es la diferencia del modelo respecto al dato real; en las de Cayalá, la del PSO respecto a la base.}
 \label{tab:correspondencia}
 \resizebox{\textwidth}{!}{\input{../results/tables/correspondencia.tex}}
 \end{table}
 
 \begin{itemize}
-\item \textbf{Flujo en los portones.} En el momento de mayor salida, el modelo base pasa 1.90 personas/(m s) por los portones, casi lo mismo que la capacidad medida en Jülich (1.92). Es decir, durante el pico los portones trabajan cerca de su capacidad real. El valor de diseño de la SFPE (1.22) es bastante más bajo porque está hecho para dejar margen. Con el PSO el flujo pico baja 2.9\,\%, de acuerdo con la menor densidad.
-\item \textbf{Densidad y tiempo.} No hay datos reales del recinto; solo se puede comparar base contra PSO dentro del modelo ($-3.8$\,\% en densidad y $-0.8$\,\% en $T_{95}$, este último sin diferencia significativa).
-\item \textbf{Norma.} Con 500 personas, NFPA 101 pide 2.5 m de salida en total y 1.67 m para la salida principal. El recinto ofrece 8 m y 4 m, así que cumple con amplio margen, también con 600 personas (3.0 y 2.0 m). Ninguno de los dos montajes cambia el ancho de los portones.
+\item \textbf{Flujo en los portones.} En el momento de mayor salida, el modelo base pasa 2.41 personas/(m s) por los portones, un 25\,\% más que la capacidad medida en Jülich (1.92). Esto coincide con lo visto en la calibración: el modelo exagera el flujo por aberturas anchas. En la realidad los portones dejarían pasar menos gente y la salida sería algo más lenta. Con el PSO el flujo pico baja 12.8\,\%, porque la gente llega a los portones más repartida.
+\item \textbf{Densidad y tiempo.} No hay datos reales del recinto; solo se puede comparar base contra PSO dentro del modelo ($-7.1$\,\% en densidad y $-1.4$\,\% en $T_{95}$).
 \end{itemize}
 
 \subsection{Ajuste aproximado de la densidad}
-Si el modelo subestimara la densidad del recinto en la misma proporción que en Jülich (factor de 1.52, entre 1.41 y 1.72 según el ancho), los valores serían los de la Tabla~\ref{tab:dens_ajustada}. La densidad pico media pasaría de unas 2.1 a unas 3.2 personas/m$^2$: más cerca del límite de 4, aunque todavía por debajo. Con sobrecupo, el montaje base pasaría de 4 en una de 30 corridas, y el montaje PSO en ninguna. Este ajuste supone que el error del laboratorio se repite igual en el recinto, cosa que no está comprobada; sirve para dar una idea del margen, no como medición.
+Si el modelo subestimara la densidad del recinto en la misma proporción que en Jülich (factor de 1.52, entre 1.41 y 1.72 según el ancho), los valores serían los de la Tabla~\ref{tab:dens_ajustada}. La densidad pico media pasaría de 2.3 a 3.5 personas/m$^2$ en la base y de 2.1 a 3.2 con el PSO: más cerca del límite de 4, aunque todavía por debajo. Ninguna corrida pasaría de 4; el valor más alto sería 3.7, en la base con sobrecupo, contra 3.6 del PSO con sobrecupo. Este ajuste supone que el error del laboratorio se repite igual en el recinto, cosa que no está comprobada; sirve para dar una idea del margen, no como medición.
 
 \begin{table}[H]
 \centering
@@ -577,31 +573,31 @@ Todas las mejoras de este informe son mejoras simuladas. El montaje PSO no se in
 \section{Resultados, discusión y conclusiones}
 
 \subsection{Respuesta a la pregunta de investigación}
-Con el montaje encontrado por el PSO, la densidad pico baja cerca de 4\,\% (de 2.148 a 2.067 personas/m$^2$; intervalo del 95\,\% para la reducción entre 1.7 y 5.9\,\%). El tiempo en que sale el 95\,\% del público no baja de forma medible: la diferencia es de $-0.8$\,\%, con intervalo entre $-2.0$ y $+0.5$\,\%.
+Con el montaje encontrado por el PSO, la densidad pico baja 7.1\,\% (de 2.281 a 2.119 personas por m$^2$; intervalo del 95\,\% para la reducción entre 6.0 y 8.2\,\%). El tiempo en que sale el 95\,\% del público baja 1.4\,\% (de 254.1 a 250.4 s; intervalo entre 0.2 y 2.7\,\%): una mejora real dentro del modelo, pero pequeña.
 
 \subsection{Preguntas explícitas}
 \begin{description}
-\item[¿Qué mejoró?] La densidad pico, que era el objetivo con más peso. También bajó el flujo pico en los portones ($-2.9$\,\%) y la cantidad de compradores que la multitud arrastra fuera antes de comprar (de 5.1 a 3.2 personas por corrida en promedio). El tiempo de salida no mejoró.
-\item[¿Cuánto mejoró?] $-0.082$ personas/m$^2$ de densidad pico ($-3.8$\,\%) con 500 personas, $-0.129$ ($-5.6$\,\%) con 600 y $-0.079$ ($-3.7$\,\%) con atención lenta. En $T_{95}$ los cambios son de $-0.8$\,\%, $+2.6$\,\% y $+0.2$\,\%; solo el de 600 personas es significativo, y es en contra del PSO (Tabla~\ref{tab:comparaciones}).
-\item[¿Bajo qué condiciones?] Cierre ordinario sin pánico, 500 a 600 personas en la zona sur, 35\,\% de compradores, tiempos de atención de 16.4 o 24.6 s, los portones en las posiciones supuestas y el resto de supuestos de la Sección 1. Fuera de eso los resultados no están probados.
-\item[¿Qué tan confiable es la comparación?] Dentro del modelo, bastante: son 30 réplicas pareadas con las mismas personas, el montaje se eligió sin usar esas semillas y los intervalos de la densidad no tocan el cero en ninguno de los tres escenarios. Frente a la realidad, menos: el modelo reproduce el flujo real con 9\,\% de error, pero subestima la densidad real en 34\,\%. La diferencia entre montajes es más confiable que los valores absolutos, siempre que ese sesgo afecte por igual a los dos montajes, lo cual es un supuesto.
-\item[¿Qué limitaciones permanecen?] No hay datos reales del recinto. El modelo subestima la densidad. La posición de los portones, el tamaño de las barras y la variación del tiempo de atención son estimaciones. La zona modelada tiene 500 personas cuando el concierto tiene más de 15 mil. Con el presupuesto disponible, el PSO no garantiza el mejor montaje posible: se encontraron varios óptimos parecidos.
+\item[¿Qué mejoró?] Sobre todo la densidad pico, que era el objetivo con más peso. También bajó el flujo pico en los portones ($-12.8$\,\%), la gente sale antes en el primer minuto y hay menos compradores que la multitud arrastra fuera antes de comprar (de 3.7 a 2.3 personas por corrida en promedio). El tiempo de salida mejoró poco.
+\item[¿Cuánto mejoró?] $-0.162$ personas/m$^2$ de densidad pico ($-7.1$\,\%) con 500 personas, $-0.113$ ($-4.8$\,\%) con 600 y $-0.159$ ($-7.0$\,\%) con atención lenta. En $T_{95}$ los cambios son de $-1.4$\,\%, $-1.4$\,\% y $-1.2$\,\%; el primero es significativo, el segundo está en el límite y el tercero no lo es (Tabla~\ref{tab:comparaciones}).
+\item[¿Bajo qué condiciones?] Cierre ordinario sin pánico, 500 a 600 personas en la zona sur, 35\,\% de compradores, tiempos de atención de 16.4 o 24.6 s, los portones en el borde sur y el resto de supuestos de las Secciones 1 y 3. Fuera de eso los resultados no están probados.
+\item[¿Qué tan confiable es la comparación?] Dentro del modelo, bastante: son 30 réplicas pareadas con las mismas personas, el montaje se eligió sin usar esas semillas y los intervalos de la densidad no tocan el cero en ninguno de los tres escenarios. Frente a la realidad, menos: el modelo reproduce el flujo real con 9\,\% de error, pero subestima la densidad real en 34\,\% y exagera el paso por aberturas anchas. La diferencia entre montajes es más confiable que los valores absolutos, siempre que esos sesgos afecten por igual a los dos montajes, lo cual es un supuesto.
+\item[¿Qué limitaciones permanecen?] No hay datos reales del recinto. El modelo subestima la densidad. La posición de los portones, el tamaño de las barras, la variación del tiempo de atención y las reglas que evitan filas trabadas son estimaciones. La zona modelada tiene 500 personas cuando el concierto tiene más de 15 mil. Con el presupuesto disponible, el PSO no garantiza el mejor montaje posible: se encontraron varios óptimos parecidos.
 \end{description}
 
 \subsection{Discusión}
-El montaje tradicional no es malo en esta geometría: deja las barras cerca del portón suroeste y quien compra sale rápido después de ser atendido. Su problema es que las filas quedan en el camino principal hacia ese portón. El PSO lo resuelve sacando las barras de ese camino y partiendo el flujo con una valla, y eso explica la menor densidad (Figura~\ref{fig:mapa}).
+El problema del montaje tradicional en esta geometría es que las cuatro barras quedan sobre el borde oeste, y sus filas terminan justo donde pasa la corriente que va al portón suroeste. El PSO lo resuelve llevando las barras al centro y al norte, donde está el público al terminar, y usando las vallas para separar las corrientes que van a cada portón. Eso explica la menor densidad (Figura~\ref{fig:mapa}).
 
-El tiempo de salida, en cambio, casi no depende del montaje. Lo marca la última persona atendida: con 175 compradores y 12 puntos de atención, las barras tardan unos 4 minutos en atender a todos. Por eso una atención 50\,\% más lenta alarga la salida 41\,\%, mientras que mover las barras la cambia menos de 1\,\%. En el escenario con 600 personas el montaje PSO tarda un poco más, porque sus barras están donde empieza el público y las filas estorban más a quienes salen.
+El tiempo de salida, en cambio, casi no depende del montaje. Lo marca la última persona atendida: con 175 compradores y 12 puntos de atención, las barras tardan unos 4 minutos en atender a todos. Por eso una atención 50\,\% más lenta alarga la salida 40\,\%, mientras que mover las barras la cambia menos de 2\,\%.
 
 \subsection{Conclusión}
-Optimizar la ubicación de barras y vallas con PSO reduce la densidad pico cerca de 4\,\% en el modelo, de forma consistente en los tres escenarios probados, sin empeorar el tiempo de salida con la demanda normal. La mejora es real dentro del modelo pero pequeña, y no reemplaza la medida que más pesa en el tiempo de salida: atender más rápido en las barras.
+Optimizar la ubicación de barras y vallas con PSO reduce la densidad pico cerca de 7\,\% en el modelo, de forma consistente en los tres escenarios probados, y acorta un poco el tiempo de salida con la demanda normal. La mejora es real dentro del modelo y vale la pena porque no cuesta más que reacomodar el mobiliario. Aun así, no reemplaza la medida que más pesa en el tiempo de salida: atender más rápido en las barras.
 
 \subsection{Recomendación para el recinto}
 \begin{enumerate}
-\item No colocar las filas de las barras en el camino hacia el portón suroeste, es decir, no alinear las barras en el borde oeste. Llevarlas hacia el norte y el centro, donde está el público al terminar.
-\item Instalar una valla de unos 6 m a unos 6 m del portón suroeste, casi paralela al borde sur, para partir en dos el flujo que llega a ese portón, y otra en diagonal frente al portón sureste.
+\item No alinear las barras sobre el borde oeste, junto al camino hacia el portón suroeste. Llevarlas al centro y al norte de la zona, en dos pares, donde está el público al terminar.
+\item Instalar una valla de unos 6 m casi perpendicular al borde sur, entre los dos portones, para separar las corrientes que van a cada uno, y otra en diagonal unos 14 m al norte del portón suroeste para ordenar la llegada a ese portón.
 \item Para bajar el tiempo de salida, aumentar la capacidad de atención cashless: más terminales por barra, pagos más rápidos o devolución de saldo en línea. El número de terminales no se simuló; es el siguiente experimento recomendado.
-\item Si se espera más de 500 personas en esta zona, preferir el montaje PSO: según el ajuste de la Sección 7, el montaje base podría acercarse a 4 personas/m$^2$ con sobrecupo.
+\item Si se espera más de 500 personas en esta zona, preferir el montaje PSO: según el ajuste de la Sección 7, la densidad real del montaje base con sobrecupo podría llegar a unas 3.7 personas/m$^2$, cerca del límite de 4.
 \item Antes de adoptar el cambio, medir en un evento real los flujos en los portones, las densidades y los tiempos de atención, y usar esos datos para recalibrar el modelo.
 \end{enumerate}
 

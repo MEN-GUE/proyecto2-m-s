@@ -4,7 +4,7 @@ Proyecto 2 de CC3074 Modelización y Simulación (UVG, ciclo 2 de 2026).
 
 Autor: Juan Fernando Menéndez Guerra, carné 17444. Trabajo individual aprobado por el docente.
 
-Se simula la salida de público en la zona sur de la Explanada Cardales de Cayalá (zona 16, Ciudad de Guatemala) al terminar un concierto nocturno. Parte del público pasa por barras cashless antes de salir. Se usa un modelo de fuerzas sociales para el movimiento de cada persona y un enjambre de partículas (PSO) para buscar dónde colocar cuatro barras y dos vallas de modo que baje la densidad máxima y el tiempo de salida.
+Se simula la salida de público en la zona sur de la Explanada Cayalá (zona 16, Ciudad de Guatemala) al terminar un concierto nocturno. Parte del público pasa por barras cashless antes de salir. Se usa un modelo de fuerzas sociales para el movimiento de cada persona y un enjambre de partículas (PSO) para buscar dónde colocar cuatro barras y dos vallas de modo que baje la densidad máxima y el tiempo de salida.
 
 ## Pregunta
 
@@ -16,13 +16,13 @@ Se simula la salida de público en la zona sur de la Explanada Cardales de Cayal
 
 | Escenario | Densidad pico, PSO frente a base | T95, PSO frente a base |
 | --- | --- | --- |
-| 500 personas, atención de 16.4 s | -3.8 % (IC 95 %: -5.9 % a -1.7 %) | -0.8 % (no significativo) |
-| 600 personas | -5.6 % | +2.6 % (peor) |
-| Atención de 24.6 s | -3.7 % | +0.2 % (no significativo) |
+| 500 personas, atención de 16.4 s | -7.1 % (IC 95 %: -8.2 % a -6.0 %) | -1.4 % (IC 95 %: -2.7 % a -0.2 %) |
+| 600 personas | -4.8 % | -1.4 % (en el límite de ser significativo) |
+| Atención de 24.6 s | -7.0 % | -1.2 % (no significativo) |
 
 - El modelo se calibró con trayectorias reales de Jülich: tau = 0.5 s, error de flujo del 9 %.
 - El modelo reproduce bien el flujo real, pero subestima la densidad real en 34 %.
-- El tiempo de salida depende sobre todo de la velocidad de atención en las barras: con atención 50 % más lenta sube 41 %.
+- El tiempo de salida depende sobre todo de la velocidad de atención en las barras: con atención 50 % más lenta sube 40 %.
 
 ## Entregables
 
@@ -131,7 +131,7 @@ Una corrida suelta para el visor:
 
 Las corridas guardadas sirven de respaldo si falla el entorno. Están la base y el PSO con 500 personas, con 600 personas y con atención de 24.6 s, todas con la semilla 1001. Una forma de grabar el bloque de demostración del video con el visor:
 
-1. Base frente a PSO con 500 personas: mostrar cómo el flujo al portón suroeste cruza las filas en la base y cómo la valla lo parte en el PSO.
+1. Base frente a PSO con 500 personas: mostrar cómo en la base la corriente hacia el portón suroeste pasa pegada a las filas de las barras y cómo en el PSO las vallas separan las corrientes de cada portón.
 2. Activar la capa de densidad en el momento de mayor salida (cerca de t = 25 s).
 3. Lanzar una corrida nueva con otra semilla para mostrar que el programa corre en vivo.
 
@@ -139,15 +139,13 @@ Las corridas guardadas sirven de respaldo si falla el entorno. Están la base y 
 
 | Dato | Tipo | Fuente |
 | --- | --- | --- |
-| Polígono del lote (way 688526225) | Real | OpenStreetMap, consulta Overpass del 8 de noviembre de 2026, licencia ODbL |
-| Ventana de 80 x 50 m, posición de portones | Estimación | Elegidas por el autor sobre el polígono real |
+| Polígono de la explanada, "Arena Gallo" (way 1569890595) | Real | OpenStreetMap, consulta a la API del 9 de noviembre de 2026, licencia ODbL |
+| Ventana de 80 x 50 m, posición de portones | Estimación | Elegidas por el autor sobre el polígono real, del lado de la rotonda y del acceso de Futeca |
 | Tamaño de barras y vallas | Estimación | Medidas típicas de mobiliario de eventos |
 | Distribución inicial del público y compras | Sintético | Generado con semillas fijas |
-| Factores de capacidad de NFPA 101 (5 mm por persona, salida principal para 2/3 del aforo) | Norma | NFPA 101, Tabla 7.3.3.1 y 12.2.3.6 |
-| Flujo máximo de diseño de la SFPE (1.32 p/(m s) de ancho efectivo) | Guía de ingeniería | SFPE Handbook, quinta edición (2016) |
 | Trayectorias del experimento "Bottleneck, Caserne" (2006) | Real, público | Archivo de datos de Jülich, DOI 10.34735/ped.2006.2, licencia CC BY 4.0. Se descargan solas en `data/julich/raw/`; el resumen de flujos queda en `data/julich/julich_flows.csv` |
 
-En OSM no existe un elemento llamado "Explanada Cayalá". Se usa el lote abierto más grande junto a Cardales de Cayalá, que coincide con la "Explanada Cardales" mencionada por Prensa Libre para los conciertos de noviembre de 2022. Esta identificación es una suposición del autor.
+La Explanada Cayalá es el terreno abierto al norte de los campos de Futeca, junto al Bulevar Austriaco. En OSM aparece como "Arena Gallo", agregado al mapa el 20 de octubre de 2026 y etiquetado como zona en construcción. La identificación la hizo el autor, que conoce el lugar. Como es un descampado que se arma distinto en cada evento, la posición de portones, barras y vallas es una estimación.
 
 Datos de mapa: colaboradores de OpenStreetMap. Datos de Jülich: Forschungszentrum Jülich, CC BY 4.0.
 

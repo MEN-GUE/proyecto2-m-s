@@ -38,7 +38,9 @@ def test_rejects_outside(setup):
 
 def test_rejects_exit_radius(setup):
     grid, base = setup
-    ok, _, v = check_layout(grid, with_bar(base, 0, (14.0, 7.0)))
+    g = Venue().gates[1]
+    c = (g[:2] + g[2:4]) / 2 - 3 * g[4:]
+    ok, _, v = check_layout(grid, with_bar(base, 0, tuple(c)))
     assert not ok and v["radio_de_salida"] > 0
 
 

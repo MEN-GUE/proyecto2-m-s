@@ -4,7 +4,7 @@ import numpy as np
 from numba import njit
 
 # indices del vector de parametros
-TAU, A, B, AW, BW, MASS, DT, TMAX, VCAP, SIGMA, SAMPLE, SPACING, MARGIN, SERVE_R, GIVE_UP = range(15)
+TAU, A, B, AW, BW, MASS, DT, TMAX, VCAP, SIGMA, SAMPLE, SPACING, MARGIN, SERVE_R, GIVE_UP, HEAD_WAIT = range(16)
 CELL = 2.0
 
 
@@ -42,6 +42,7 @@ def simulate(pos0, v0, rad, line, dur, walls, gates, fdist, fdir, line_field, sp
     head = np.zeros(max(nl, 1), np.int64)
     tail = np.zeros(max(nl, 1), np.int64)
     busy = np.full(max(nl, 1), -1.0)
+    idle_since = np.zeros(max(nl, 1))
 
     gx0, gy0, gh = nav0[0], nav0[1], nav0[2]
     nfx, nfy = fdist.shape[1], fdist.shape[2]
@@ -112,11 +113,13 @@ def simulate(pos0, v0, rad, line, dur, walls, gates, fdist, fdir, line_field, sp
                 served[i] = True
                 head[l] += 1
                 busy[l] = -1.0
+                idle_since[l] = t
             while busy[l] < 0 and head[l] < tail[l] and state[qids[l, head[l]]] == 3:
                 head[l] += 1
             if busy[l] < 0 and head[l] < tail[l]:
                 i = qids[l, head[l]]
-                if math.hypot(pos[i, 0] - sp[l, 0], pos[i, 1] - sp[l, 1]) < prm[SERVE_R]:
+                near = math.hypot(pos[i, 0] - sp[l, 0], pos[i, 1] - sp[l, 1]) < prm[SERVE_R]
+                if near or t - idle_since[l] > prm[HEAD_WAIT]:
                     busy[l] = t + dur[i]
 
         # direccion deseada
@@ -143,7 +146,7 @@ def simulate(pos0, v0, rad, line, dur, walls, gates, fdist, fdir, line_field, sp
                     qpos[i] = tail[l]
                     tail[l] += 1
                     state[i] = s = 1
-                if s == 0 and d > 2.5 and fdist[f, ci, cj] > 0.5:
+                if d > 2.5 and fdist[f, ci, cj] > 0.5:
                     ex, ey = fdir[f, ci, cj, 0], fdir[f, ci, cj, 1]
                 elif d > 1e-6:
                     ex, ey = tx / d, ty / d

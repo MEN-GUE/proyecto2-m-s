@@ -8,7 +8,20 @@ from ..model.grid import inside_polygon, seg_distance
 from ..model.validator import check_layout
 from .runner import build_scene, context, make_agents, simulate
 
-FENCED = [(16.0, 12.0, math.pi / 2), (70.0, 33.0, 0.0)]
+
+def fenced_layout(venue, grid):
+    bars = baseline_layout(venue)["bars"]
+    fences = []
+    for g in venue.gates:
+        t = (g[2:4] - g[:2]) / np.linalg.norm(g[2:4] - g[:2])
+        th = (math.atan2(t[1], t[0]) + math.pi / 2) % math.pi - math.pi / 2
+        for depth in (7.0, 9.0, 11.0, 13.0):
+            options = [(g[:2] + g[2:4]) / 2 - depth * g[4:] + side * t for side in (0.0, 4.0, -4.0, 8.0, -8.0)]
+            ok = [c for c in options if check_layout(grid, {"bars": bars, "fences": fences + [(*c, th)]})[0]]
+            if ok:
+                fences.append((float(ok[0][0]), float(ok[0][1]), th))
+                break
+    return {"bars": bars, "fences": fences}
 
 
 def conservation(n=300, seed=1):
@@ -23,7 +36,7 @@ def walls(n=500, seed=2):
     venue, grid = context()
     base = baseline_layout(venue)
     out = []
-    for name, layout in (("base", base), ("con vallas", {"bars": base["bars"], "fences": FENCED})):
+    for name, layout in (("base", base), ("con vallas", fenced_layout(venue, grid))):
         assert check_layout(grid, layout)[0]
         scene = build_scene(venue, grid, layout)
         res = simulate(scene, make_agents(scene, n, P.SERVICE_MEAN, seed), record=True)

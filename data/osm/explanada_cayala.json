@@ -1,94 +1,206 @@
 {
- "version": 0.6,
- "generator": "Overpass API 0.7.62.11 87bfad18",
- "osm3s": {
-  "timestamp_osm_base": "2026-11-09T00:06:55Z",
-  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
- },
+ "version": "0.6",
+ "generator": "openstreetmap-cgimap 2.1.1 (4104234 spike-08.openstreetmap.org)",
+ "copyright": "OpenStreetMap and contributors",
+ "attribution": "http://www.openstreetmap.org/copyright",
+ "license": "http://opendatacommons.org/licenses/odbl/1-0/",
  "elements": [
   {
+   "type": "node",
+   "id": 10097058981,
+   "lat": 14.6170871,
+   "lon": -90.4840412,
+   "timestamp": "2022-10-13T07:04:01Z",
+   "version": 1,
+   "changeset": 127450915,
+   "user": "MerariHernandez",
+   "uid": 16975994
+  },
+  {
+   "type": "node",
+   "id": 14301283200,
+   "lat": 14.6175122,
+   "lon": -90.4840437,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352401,
+   "lat": 14.6176554,
+   "lon": -90.4826502,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352402,
+   "lat": 14.6173304,
+   "lon": -90.4821335,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352403,
+   "lat": 14.6171262,
+   "lon": -90.4821146,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352404,
+   "lat": 14.6167186,
+   "lon": -90.4825116,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352405,
+   "lat": 14.6144693,
+   "lon": -90.4825236,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352406,
+   "lat": 14.6143096,
+   "lon": -90.4833644,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352407,
+   "lat": 14.6143522,
+   "lon": -90.483332,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352408,
+   "lat": 14.6145227,
+   "lon": -90.4833848,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352409,
+   "lat": 14.6146061,
+   "lon": -90.4834578,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352410,
+   "lat": 14.6146821,
+   "lon": -90.4836095,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352411,
+   "lat": 14.6157504,
+   "lon": -90.4837632,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352412,
+   "lat": 14.6159307,
+   "lon": -90.4838683,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
+   "type": "node",
+   "id": 14301352413,
+   "lat": 14.6171915,
+   "lon": -90.4840029,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533
+  },
+  {
    "type": "way",
-   "id": 688526225,
-   "bounds": {
-    "minlat": 14.6113726,
-    "minlon": -90.4825112,
-    "maxlat": 14.612848,
-    "maxlon": -90.481632
-   },
-   "geometry": [
-    {
-     "lat": 14.6127521,
-     "lon": -90.4822727
-    },
-    {
-     "lat": 14.6124041,
-     "lon": -90.4822232
-    },
-    {
-     "lat": 14.6124328,
-     "lon": -90.4820021
-    },
-    {
-     "lat": 14.6119698,
-     "lon": -90.4819386
-    },
-    {
-     "lat": 14.6118931,
-     "lon": -90.4825112
-    },
-    {
-     "lat": 14.6114525,
-     "lon": -90.4824592
-    },
-    {
-     "lat": 14.6114002,
-     "lon": -90.482453
-    },
-    {
-     "lat": 14.6113726,
-     "lon": -90.482145
-    },
-    {
-     "lat": 14.6113892,
-     "lon": -90.4820701
-    },
-    {
-     "lat": 14.6114236,
-     "lon": -90.482029
-    },
-    {
-     "lat": 14.6114582,
-     "lon": -90.4819848
-    },
-    {
-     "lat": 14.6115102,
-     "lon": -90.4819641
-    },
-    {
-     "lat": 14.6115854,
-     "lon": -90.481972
-    },
-    {
-     "lat": 14.6116228,
-     "lon": -90.481632
-    },
-    {
-     "lat": 14.612464,
-     "lon": -90.4817166
-    },
-    {
-     "lat": 14.612848,
-     "lon": -90.4817662
-    },
-    {
-     "lat": 14.6127521,
-     "lon": -90.4822727
-    }
+   "id": 1569890595,
+   "timestamp": "2026-10-20T00:19:42Z",
+   "version": 1,
+   "changeset": 190766660,
+   "user": "dfmapas",
+   "uid": 4329533,
+   "nodes": [
+    14301283200,
+    14301352401,
+    14301352402,
+    14301352403,
+    14301352404,
+    14301352405,
+    14301352406,
+    14301352407,
+    14301352408,
+    14301352409,
+    14301352410,
+    14301352411,
+    14301352412,
+    10097058981,
+    14301352413,
+    14301283200
    ],
    "tags": {
-    "amenity": "parking",
-    "operator": "Parqueo fitness one Cayalá"
+    "landuse": "construction",
+    "name": "Arena Gallo"
    }
   }
- ]
+ ],
+ "descargado": "2026-11-09"
 }
