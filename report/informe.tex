@@ -1,0 +1,117 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\usepackage[round]{natbib}
+\graphicspath{{../results/figures/}}
+
+\newcommand{\autor}{Nombre del autor}
+\newcommand{\carne}{Carn\'e 00000}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+{\large Universidad del Valle de Guatemala\par}
+{\large CC3074 Modelizaci\'on y Simulaci\'on, ciclo 2 de 2026\par}
+\vspace{3cm}
+{\LARGE\bfseries Salida de p\'ublico al cierre de un concierto en la Explanada Cayal\'a\par}
+\vspace{0.5cm}
+{\large Fuerzas sociales y enjambre de part\'iculas para ubicar barras y vallas\par}
+\vspace{3cm}
+{\large Proyecto 2\par}
+\vspace{1cm}
+{\large \autor\par \carne\par}
+\vfill
+{\large Noviembre de 2026\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Problema y delimitaci\'on}
+
+\subsection{Contexto}
+La Explanada Cardales de Cayal\'a, en la zona 16 de la Ciudad de Guatemala, es un espacio abierto que se usa para conciertos grandes. Para los conciertos de noviembre de 2022 las autoridades esperaban m\'as de 15 mil personas por d\'ia \citep{prensalibre2022}. Al terminar el concierto casi todo el p\'ublico sale al mismo tiempo. Una parte va primero a las barras cashless a comprar o a devolver saldo, y el resto camina directo a los portones. Las filas de las barras y el flujo hacia la salida se cruzan, y en esos puntos la gente se amontona.
+
+Cuando la densidad pasa de unas 4 personas por metro cuadrado el contacto f\'isico se vuelve inevitable y la circulaci\'on casi se detiene \citep{fruin1971}. Por eso la ubicaci\'on de barras y vallas no es un detalle de decoraci\'on: decide d\'onde se forman los tapones.
+
+\subsection{Zona modelada}
+No se modela toda la explanada sino la zona cr\'itica de salida. En OpenStreetMap no existe un elemento llamado ``Explanada Cayal\'a''. Se usa el lote abierto m\'as grande junto a Cardales de Cayal\'a (way 688526225, 8555 m$^2$) \citep{osm688526225}, que coincide con la ubicaci\'on de la ``Explanada Cardales'' que menciona la nota de prensa \citep{prensalibre2022}. Esta identificaci\'on es una suposici\'on del autor.
+
+Sobre ese pol\'igono real se coloca una ventana de 80 por 50 metros en el extremo sur. El dominio es la intersecci\'on de ambos y mide 3145 m$^2$. Los bordes oeste y sur y la esquina recortada del sureste son bordes reales del lote. Los bordes norte y este son cortes de la ventana y se tratan como paredes. La Figura~\ref{fig:recinto} muestra el pol\'igono, la ventana y el montaje base.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_recinto.png}
+\caption{Izquierda: lote real de OpenStreetMap y ventana modelada. Derecha: dominio, portones, montaje base con las cuatro barras en el borde oeste y zona donde inicia el p\'ublico. Los tri\'angulos marcan los puntos de atenci\'on de cada barra.}
+\label{fig:recinto}
+\end{figure}
+
+\subsection{Actores e interacciones}
+\begin{itemize}
+\item \textbf{Asistentes}: cada persona camina hacia su objetivo, evita a las dem\'as y evita paredes y mobiliario. El 35\,\% decide pasar por una barra.
+\item \textbf{Barras cashless}: cuatro m\'odulos de 2 por 6 metros con tres puntos de atenci\'on cada uno. Cada punto atiende a una persona a la vez en orden de llegada.
+\item \textbf{Vallas encauzadoras}: dos vallas met\'alicas de 6 metros que ordenan el flujo frente a los portones. El montaje base no las usa.
+\item \textbf{Portones}: dos salidas de 4 metros de ancho en el borde sur.
+\end{itemize}
+
+\subsection{Pregunta de investigaci\'on}
+?`En qu\'e porcentaje bajan la densidad pico y el tiempo de salida cuando la ubicaci\'on de barras y vallas se elige con un enjambre de part\'iculas, frente al montaje tradicional con las barras pegadas al borde oeste?
+
+\subsection{Objetivos}
+\begin{enumerate}
+\item Ajustar el modelo de movimiento con datos reales de cuellos de botella de J\"ulich y reportar su error absoluto medio.
+\item Encontrar con PSO una ubicaci\'on de barras y vallas que cumpla las restricciones de seguridad.
+\item Medir con 30 r\'eplicas por condici\'on el cambio en densidad pico y tiempo de salida, con intervalos de confianza del 95\,\%.
+\item Comprobar por c\'odigo que ning\'un mueble bloquea rutas de salida y que la densidad no pasa de 4 personas por m$^2$.
+\end{enumerate}
+
+\subsection{M\'etricas}
+\begin{itemize}
+\item \textbf{Densidad pico} $D_{\max}$ (personas/m$^2$, se busca bajarla): el valor m\'as alto en el tiempo y en el espacio del mapa de densidad suavizado, contando solo las zonas por donde se puede caminar.
+\item \textbf{Tiempo de salida del 95\,\%} $T_{95}$ (s, se busca bajarlo): el instante en que el 95\,\% del aforo ya cruz\'o un port\'on.
+\end{itemize}
+
+\subsection{Entradas y salidas}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+Entradas & Pol\'igono del recinto, posici\'on de barras y vallas, aforo, probabilidad de compra, tiempo medio de atenci\'on, semilla. \\
+Salidas & Series de densidad en el tiempo, mapa de densidad m\'axima, tiempo de salida de cada persona, $D_{\max}$ y $T_{95}$. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Supuestos y exclusiones}
+Se supone terreno plano, buena iluminaci\'on y un cierre normal, sin p\'anico. Todo el p\'ublico modelado est\'a dentro de la zona al iniciar el cierre. Quedan fuera sismos, ri\~nas, lluvia, emergencias m\'edicas y el tr\'afico de veh\'iculos afuera del recinto. Tampoco se modelan ba\~nos ni otros servicios.
+
+\subsection{Tipo de datos}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+Dato & Tipo & Fuente \\
+\midrule
+Pol\'igono del lote & Real & OpenStreetMap, consulta del 8 de noviembre de 2026 \\
+Ventana y posici\'on de portones & Estimaci\'on & Elecci\'on del autor sobre el pol\'igono real \\
+Tama\~no de barras y vallas & Estimaci\'on & Medidas t\'ipicas de mobiliario de eventos \\
+Posici\'on inicial y compras & Sint\'etico & Generado con semillas fijas \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\bibliographystyle{apalike}
+\bibliography{referencias}
+
+\end{document}
