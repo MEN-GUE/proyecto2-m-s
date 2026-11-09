@@ -4,7 +4,7 @@ import numpy as np
 from numba import njit
 
 # indices del vector de parametros
-TAU, A, B, AW, BW, MASS, DT, TMAX, VCAP, SIGMA, SAMPLE, SPACING, MARGIN = range(13)
+TAU, A, B, AW, BW, MASS, DT, TMAX, VCAP, SIGMA, SAMPLE, SPACING, MARGIN, SERVE_R, GIVE_UP = range(15)
 CELL = 2.0
 
 
@@ -36,7 +36,8 @@ def simulate(pos0, v0, rad, line, dur, walls, gates, fdist, fdir, line_field, sp
     qpos = np.full(n, -1)
     t_exit = np.full(n, np.nan)
     gate_of = np.full(n, -1)
-    exit_state = np.full(n, -1)
+    served = np.zeros(n, np.bool_)
+    unserved = 0
     qids = np.full((max(nl, 1), n), -1)
     head = np.zeros(max(nl, 1), np.int64)
     tail = np.zeros(max(nl, 1), np.int64)
@@ -105,12 +106,17 @@ def simulate(pos0, v0, rad, line, dur, walls, gates, fdist, fdir, line_field, sp
         # colas: fin de servicio y llegada del primero de la fila al punto de atencion
         for l in range(nl):
             if busy[l] >= 0 and t >= busy[l]:
-                state[qids[l, head[l]]] = 2
+                i = qids[l, head[l]]
+                if state[i] == 1:
+                    state[i] = 2
+                served[i] = True
                 head[l] += 1
                 busy[l] = -1.0
+            while busy[l] < 0 and head[l] < tail[l] and state[qids[l, head[l]]] == 3:
+                head[l] += 1
             if busy[l] < 0 and head[l] < tail[l]:
                 i = qids[l, head[l]]
-                if math.hypot(pos[i, 0] - sp[l, 0], pos[i, 1] - sp[l, 1]) < 0.6:
+                if math.hypot(pos[i, 0] - sp[l, 0], pos[i, 1] - sp[l, 1]) < prm[SERVE_R]:
                     busy[l] = t + dur[i]
 
         # direccion deseada
@@ -121,6 +127,8 @@ def simulate(pos0, v0, rad, line, dur, walls, gates, fdist, fdir, line_field, sp
             ci = min(max(int((pos[i, 0] - gx0) / gh), 0), nfx - 1)
             cj = min(max(int((pos[i, 1] - gy0) / gh), 0), nfy - 1)
             ex, ey, sv = 0.0, 0.0, v0[i]
+            if s == 0 and t > prm[GIVE_UP]:
+                state[i] = s = 2
             if s == 2:
                 ex, ey = fdir[0, ci, cj, 0], fdir[0, ci, cj, 1]
             else:
@@ -214,20 +222,20 @@ def simulate(pos0, v0, rad, line, dur, walls, gates, fdist, fdir, line_field, sp
                         vel[i, 0] -= vn * ux
                         vel[i, 1] -= vn * uy
             pos[i, 0], pos[i, 1] = nx_, ny_
-            if state[i] != 1:
-                for g in range(ng):
-                    ax, ay = gates[g, 0], gates[g, 1]
-                    lx, ly = gates[g, 2] - ax, gates[g, 3] - ay
-                    s = ((nx_ - ax) * lx + (ny_ - ay) * ly) / (lx * lx + ly * ly)
-                    u = (nx_ - ax) * gates[g, 4] + (ny_ - ay) * gates[g, 5]
-                    if u > prm[MARGIN] and -0.1 <= s <= 1.1:
-                        exit_state[i] = state[i]
-                        state[i] = 3
-                        t_exit[i] = t + dt
-                        gate_of[i] = g
-                        out += 1
-                        pos[i, 0], pos[i, 1] = -1e3, -1e3
-                        break
+            for g in range(ng):
+                ax, ay = gates[g, 0], gates[g, 1]
+                lx, ly = gates[g, 2] - ax, gates[g, 3] - ay
+                s = ((nx_ - ax) * lx + (ny_ - ay) * ly) / (lx * lx + ly * ly)
+                u = (nx_ - ax) * gates[g, 4] + (ny_ - ay) * gates[g, 5]
+                if u > prm[MARGIN] and -0.1 <= s <= 1.1:
+                    if line[i] >= 0 and not served[i]:
+                        unserved += 1
+                    state[i] = 3
+                    t_exit[i] = t + dt
+                    gate_of[i] = g
+                    out += 1
+                    pos[i, 0], pos[i, 1] = -1e3, -1e3
+                    break
         t += dt
         step += 1
-    return t_exit, gate_of, exit_state, dser[:k], nin[:k], nout[:k], dmap, crossings, t
+    return t_exit, gate_of, unserved, dser[:k], nin[:k], nout[:k], dmap, crossings, t

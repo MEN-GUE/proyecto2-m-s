@@ -7,9 +7,10 @@ from src.optimizer.objective import feasibility_study, optimize, save_bounds, ve
 from src.optimizer.pso import benchmark
 from src.simulation.calibration import calibrate
 from src.simulation.checks import summary as verification
+from src.simulation.experiments import run_matrix, summarize
 from src.visualization import export_web
-from src.visualization.figures import (plot_calibration, plot_layouts, plot_pso_convergence, plot_snapshots,
-                                      plot_venue)
+from src.visualization.figures import (plot_calibration, plot_curves, plot_heatmap, plot_layouts,
+                                      plot_pso_convergence, plot_snapshots, plot_venue, plot_violins)
 from src.visualization.tables import model_parameters
 
 
@@ -33,6 +34,11 @@ def main():
     verify_constraints()
     plot_pso_convergence()
     plot_layouts()
+    run_matrix()
+    summarize()
+    plot_heatmap()
+    plot_curves()
+    plot_violins()
     for name in ("base", "pso"):
         export_web.save(export_web.export(name))
 

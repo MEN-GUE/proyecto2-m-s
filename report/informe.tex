@@ -267,9 +267,9 @@ Si la dirección deseada apuntara en línea recta al objetivo, las personas se q
 \subsection{Reglas}
 \begin{enumerate}
 \item \textbf{Al inicio} se sortean para cada persona su rapidez deseada, su radio, si compra y su tiempo de atención. Todas aparecen en la franja norte del recinto, separadas al menos 0.6 m. Los compradores, en orden aleatorio, eligen la barra con menos personas asignadas (si empatan, la más cercana) y dentro de ella el punto de atención con menos gente. Hacer la elección en orden y actualizando los conteos evita que todos escojan la misma barra cuando al inicio todas están vacías.
-\item \textbf{Filas}: un comprador entra a su fila al llegar a menos de 1 m del último lugar. Los lugares están separados 0.8 m hacia el este del punto de atención. Cuando el primero de la fila llega al punto de atención y este está libre, empieza su atención. Al terminarla, la persona cambia su objetivo al portón más cercano y la fila avanza.
+\item \textbf{Filas}: un comprador entra a su fila al llegar a menos de 1 m del último lugar. Los lugares están separados 0.8 m hacia el este del punto de atención. Cuando el primero de la fila está a menos de 1 m del punto de atención y este está libre, empieza su atención. Al terminarla, la persona cambia su objetivo al portón más cercano y la fila avanza. Un comprador que en 2 minutos no logró entrar a una fila desiste y se va.
 \item \textbf{Movimiento}: en cada paso se calculan las fuerzas usando una grilla de vecinos de 2 por 2 m, de modo que cada persona solo revisa a quienes están en su celda y en las 8 vecinas.
-\item \textbf{Salida}: una persona sale cuando cruza un portón y está 0.3 m afuera. Si la multitud arrastra fuera a un comprador que aún no entraba a su fila, se cuenta como evacuado y se registra como ``salió sin comprar''.
+\item \textbf{Salida}: una persona sale cuando cruza un portón y está 0.3 m afuera. Esto vale para todos, incluso para quien estaba en una fila y fue empujado por la multitud; en ese caso la fila lo salta. Todo comprador que sale sin haber sido atendido se registra como ``salió sin comprar''. Estas reglas evitan que una fila quede trabada para siempre por una persona que ya no puede llegar al punto de atención.
 \item \textbf{Registro}: cada 0.5 s se calcula la densidad con un kernel gaussiano de $\sigma = 0.7$ m sobre celdas de 0.5 m \citep{helbing2007}, solo en zonas transitables.
 \item \textbf{Paro}: cuando sale la última persona o a los 900 s.
 \end{enumerate}
@@ -289,7 +289,7 @@ La rapidez deseada es normal con media 1.34 m/s y desviación 0.26 m/s, recortad
 $D_{\max}$ es el valor más alto del mapa de densidad en todo el recorrido. $T_{95}$ es el tiempo en que sale la persona número $\lceil 0.95 N \rceil$. Además se registran el flujo pico por portón (personas que cruzan en 10 s, divididas entre 10 s y 4 m) y cuántos compradores salieron sin comprar.
 
 \subsection{Implementación y reproducibilidad}
-No hay una clase por persona: todo el estado vive en arreglos de NumPy y el ciclo principal se compila con Numba \citep{lam2015}. Con la grilla de vecinos y una lista de muros cercanos por celda, el costo de cada paso crece de forma lineal con el número de personas. Una evacuación completa con 500 personas tarda cerca de 0.8 s en un solo núcleo.
+No hay una clase por persona: todo el estado vive en arreglos de NumPy y el ciclo principal se compila con Numba \citep{lam2015}. Con la grilla de vecinos y una lista de muros cercanos por celda, el costo de cada paso crece de forma lineal con el número de personas. Una evacuación completa con 500 personas tarda entre 0.3 y 0.4 s en un solo núcleo, y las 180 corridas del experimento se hacen en unos 15 s usando 18 núcleos.
 
 Todo el azar se sortea antes de empezar, con un generador separado para cada parte (rapidez y radio, compras y atención, posición inicial, orden de elección). Así, con la misma semilla las mismas personas participan en cualquier montaje, lo que hace más justa la comparación entre montajes. El código está en cuatro paquetes: \texttt{model} (geometría, parámetros, validador), \texttt{simulation} (motor y corridas), \texttt{optimizer} (PSO) y \texttt{visualization} (figuras, tablas y web). Todo se reproduce desde un entorno limpio con los pasos del README.
 
@@ -380,9 +380,9 @@ Se hizo además una corrida extra con la semilla 13 que no se detiene antes de l
 \resizebox{\textwidth}{!}{\input{../results/tables/pso_reinicios.tex}}
 \end{table}
 
-Los tres reinicios encontraron montajes con $J$ entre 0.95 y 0.98 durante la búsqueda (Tabla~\ref{tab:reinicios}). Con semillas nuevas, solo el del reinicio 13 sigue por debajo de 1 (0.993); los otros dos quedan un poco peor que la base. Los valores de la búsqueda son optimistas porque, entre muchas evaluaciones con ruido, el enjambre se queda con la que salió mejor por azar. Por eso hacía falta el paso de selección.
+Los tres reinicios encontraron montajes con $J$ entre 0.96 y 0.98 durante la búsqueda (Tabla~\ref{tab:reinicios}). Con semillas nuevas, solo el del reinicio 13 sigue por debajo de 1 (0.980); los otros dos quedan apenas peor que la base (1.004 y 1.006). Los valores de la búsqueda son optimistas porque, entre muchas evaluaciones con ruido, el enjambre se queda con la que salió mejor por azar. Por eso hacía falta el paso de selección.
 
-El montaje ganador (Figura~\ref{fig:layouts}) aleja las cuatro barras del borde oeste y las acerca a la zona donde empieza el público. Pone una valla pegada al borde oeste, antes del portón suroeste, y otra unos 6 m al norte del portón sureste. Con las semillas de selección, la densidad pico baja de 2.132 a 2.088 personas/m$^2$ y $T_{95}$ sube de 260.7 a 263.9 s.
+El montaje ganador (Figura~\ref{fig:layouts}) saca las barras del borde oeste: tres quedan en el norte, cerca de donde empieza el público, y una en el centro. Una valla queda casi horizontal unos 6 m al norte del portón suroeste y parte en dos el flujo que llega a ese portón; la otra queda en diagonal frente al portón sureste. Con las semillas de selección, la densidad pico baja de 2.132 a 2.056 personas/m$^2$ y $T_{95}$ queda prácticamente igual (242.9 s en la base y 243.9 s con el PSO).
 
 \begin{figure}[H]
 \centering
@@ -392,7 +392,7 @@ El montaje ganador (Figura~\ref{fig:layouts}) aleja las cuatro barras del borde 
 \end{figure}
 
 \subsection{Verificación de restricciones}
-La Tabla~\ref{tab:restricciones} muestra la comprobación por código para la base y el montaje PSO. Ninguno saca muebles del recinto, deja pasos angostos, invade el radio de 5 m de los portones, tapa la zona de fila ni deja áreas sin salida. En las 10 corridas de selección, el mapa de densidad suavizado nunca pasa de 4 personas por m$^2$ en ninguna celda transitable. El valor más alto fue 2.32 en la base y 2.21 con el PSO. Con 500 personas en esta zona, el límite de 4 no llega a estar en juego.
+La Tabla~\ref{tab:restricciones} muestra la comprobación por código para la base y el montaje PSO. Ninguno saca muebles del recinto, deja pasos angostos, invade el radio de 5 m de los portones, tapa la zona de fila ni deja áreas sin salida. En las 10 corridas de selección, el mapa de densidad suavizado nunca pasa de 4 personas por m$^2$ en ninguna celda transitable. El valor más alto fue 2.32 en la base y 2.20 con el PSO. Con 500 personas en esta zona, el límite de 4 no llega a estar en juego.
 
 \begin{table}[H]
 \centering
@@ -404,12 +404,12 @@ La Tabla~\ref{tab:restricciones} muestra la comprobación por código para la ba
 \subsection{Análisis de estancamiento}
 La Figura~\ref{fig:convergencia} muestra cómo avanzó cada búsqueda.
 \begin{itemize}
-\item \textbf{Mejoras en escalones y paro temprano.} El mejor valor baja en las primeras iteraciones y luego se queda quieto. La regla de paro cortó las búsquedas entre las iteraciones 8 y 12.
-\item \textbf{Muchas evaluaciones perdidas.} Después del arranque, entre el 60 y el 72\,\% de las partículas de cada iteración cae en montajes inválidos. La zona válida es pequeña y está partida: para pasar de un buen montaje a otro, las partículas atraviesan montajes inválidos, que no se simulan. En la práctica, cada iteración evalúa de verdad solo 3 a 5 montajes.
-\item \textbf{Varios óptimos de calidad parecida.} Los ganadores de los tres reinicios están lejos entre sí: aun emparejando cada barra con la más cercana del otro montaje, difieren entre 11 y 18 m en promedio por barra, con valores de $J$ muy parecidos. Esto indica muchos óptimos locales o un paisaje casi plano comparado con el ruido.
+\item \textbf{Mejoras en escalones y paro temprano.} El mejor valor baja en las primeras iteraciones y luego se queda quieto. La regla de paro cortó las búsquedas entre las iteraciones 6 y 16.
+\item \textbf{Muchas evaluaciones perdidas.} Después del arranque, entre el 60 y el 79\,\% de las partículas de cada iteración cae en montajes inválidos. La zona válida es pequeña y está partida: para pasar de un buen montaje a otro, las partículas atraviesan montajes inválidos, que no se simulan. En la práctica, cada iteración evalúa de verdad solo 3 a 5 montajes.
+\item \textbf{Varios óptimos de calidad parecida.} Los ganadores de los tres reinicios no coinciden: aun emparejando cada barra con la más cercana del otro montaje, el del reinicio 13 está a 9 y 12 m en promedio por barra de los otros dos, y estos dos están a 6 m entre sí, con valores de $J$ muy parecidos. Esto indica varios óptimos locales o un paisaje casi plano comparado con el ruido.
 \item \textbf{Simetría.} Las cuatro barras son iguales, así que cada montaje aparece 24 veces en el espacio de búsqueda con las barras en distinto orden. El enjambre puede repartirse entre copias equivalentes y eso frena la convergencia.
-\item \textbf{Ruido.} Entre semillas, $D_{\max}$ varía unos 0.1 personas/m$^2$ y $T_{95}$ unos 17 s. Con 3 semillas, eso da un error típico de unos 0.02 en $J$, del mismo tamaño que las mejoras encontradas.
-\item \textbf{Efecto de la regla de paro.} Sin paro temprano, la diversidad baja de 0.45 a 0.23 y $J$ de selección mejora apenas de 0.993 a 0.989, mientras las barras se mueven solo 4 m en promedio. Más iteraciones refinan el mismo óptimo, no encuentran uno mejor.
+\item \textbf{Ruido.} Entre semillas, $D_{\max}$ varía unos 0.1 personas/m$^2$ y $T_{95}$ unos 14 s (Sección~\ref{sec:experimento}). Con 3 semillas, eso da un error típico de unos 0.02 en $J$, del mismo tamaño que las mejoras encontradas.
+\item \textbf{Efecto de la regla de paro.} Sin paro temprano, la diversidad baja de 0.53 a 0.29 y $J$ de selección mejora apenas de 0.980 a 0.972, mientras las barras se mueven unos 6 m en promedio. Más iteraciones refinan el mismo óptimo, no encuentran otro claramente mejor.
 \end{itemize}
 
 Con este presupuesto, el PSO funciona más como una búsqueda guiada entre montajes válidos que como un método que converge al mejor montaje. La mejora encontrada es pequeña, y la Sección siguiente la pone a prueba con 30 réplicas.
@@ -420,6 +420,93 @@ Con este presupuesto, el PSO funciona más como una búsqueda guiada entre monta
 \caption{Mejor $J$, porcentaje de partículas inválidas y diversidad del enjambre por iteración. La línea punteada roja es la corrida sin paro temprano.}
 \label{fig:convergencia}
 \end{figure}
+
+\section{Diseño experimental, verificación y sensibilidad}
+\label{sec:experimento}
+
+\subsection{Condiciones}
+Con el montaje ganador ya fijo, se corrió la matriz de la Tabla~\ref{tab:condiciones}: 30 réplicas por condición con las semillas 1001 a 1030. Las cuatro primeras son las del diseño pedido. Las dos últimas aplican los mismos cambios de sensibilidad al montaje base; se agregaron para saber si la ventaja del PSO se mantiene cuando cambian las condiciones. Todas las condiciones usan las mismas semillas, así que en cada réplica participan las mismas personas, con las mismas decisiones de compra y los mismos tiempos de atención; solo cambia el montaje o el factor de sensibilidad. Esto permite comparar réplica por réplica.
+
+\begin{table}[H]
+\centering
+\caption{Matriz experimental.}
+\label{tab:condiciones}
+\resizebox{\textwidth}{!}{\input{../results/tables/condiciones.tex}}
+\end{table}
+
+Las entradas y parámetros de cada condición son los de las Tablas~\ref{tab:parametros} y \ref{tab:condiciones}. Los resultados de cada una de las 180 corridas quedan en \texttt{results/tables/experimento\_corridas.csv}.
+
+\subsection{Verificación en todas las corridas}
+Además de las tres pruebas de la Sección 3, se revisaron las 180 corridas del experimento (Tabla~\ref{tab:verif_exp}). En todas se conserva exactamente el número de personas, nadie cruza un muro, todos salen antes de los 900 s y ninguna corrida pasa de 4 personas por m$^2$.
+
+\begin{table}[H]
+\centering
+\caption{Comprobaciones sobre las 180 corridas del experimento.}
+\label{tab:verif_exp}
+\input{../results/tables/verificacion_experimento.tex}
+\end{table}
+
+\subsection{Resultados por condición}
+\begin{table}[H]
+\centering
+\caption{Media, desviación estándar e intervalo de confianza del 95\,\% (t de Student, 29 grados de libertad) por condición.}
+\label{tab:resumen}
+\small
+\input{../results/tables/resumen_condiciones.tex}
+\end{table}
+
+La Figura~\ref{fig:curvas} muestra el avance de la salida. En las cuatro condiciones, cerca del 65\,\% del público sale en el primer minuto: son quienes no compran. Después la curva se vuelve lenta, porque depende de qué tan rápido atienden las barras. La Figura~\ref{fig:violines} muestra la dispersión de las dos métricas principales.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_curvas_desalojo.png}
+\caption{Porcentaje del aforo evacuado en el tiempo. La línea es la media de 30 réplicas y la banda, una desviación estándar.}
+\label{fig:curvas}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_violines.png}
+\caption{Distribución de la densidad pico y de $T_{95}$ en las 30 réplicas de cada condición. Las líneas horizontales marcan mínimo, media y máximo. Ninguna réplica se acerca al límite de 4 personas/m$^2$.}
+\label{fig:violines}
+\end{figure}
+
+\subsection{Base contra PSO}
+La Tabla~\ref{tab:comparaciones} compara réplica por réplica (prueba t pareada). Con 500 personas y atención normal, el montaje PSO baja la densidad pico de 2.148 a 2.067 personas/m$^2$: una diferencia de $-0.082$ con intervalo del 95\,\% de $[-0.127, -0.037]$, es decir, entre 1.7 y 5.9\,\% menos. En $T_{95}$ la diferencia es de $-2.0$ s con intervalo $[-5.1, 1.2]$: no se puede afirmar que cambie.
+
+La columna de correlación muestra que comparar con las mismas semillas sí ayuda en $T_{95}$ (0.84), porque el tiempo depende sobre todo de cuántos compran y cuánto tardan, y eso es igual en ambos montajes. En la densidad pico la correlación es casi cero: el pico depende de dónde y cuándo se juntan los flujos, y eso cambia con el montaje.
+
+La Figura~\ref{fig:mapa} explica de dónde sale la mejora. En la base, quienes van al portón suroeste bajan por un solo carril pegado a las filas de las cuatro barras. Con el PSO, la valla frente a ese portón parte el flujo en dos carriles y las barras ya no están en ese camino. En el portón sureste el pico se mantiene en los dos montajes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_mapa_densidad.png}
+\caption{Densidad máxima que alcanza cada celda, promediada en 30 réplicas, para la base y el PSO.}
+\label{fig:mapa}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Comparaciones pareadas. Cada fila dice ``B vs A''. ``PSO 600'' y ``Base 600'' son las condiciones con sobrecupo; ``PSO 24.6 s'' y ``Base 24.6 s'', las de terminal lenta. ``Cambio'' es $(B - A)/A$ y ``Corr.'' es la correlación entre réplicas con la misma semilla.}
+\label{tab:comparaciones}
+\resizebox{\textwidth}{!}{\input{../results/tables/comparaciones.tex}}
+\end{table}
+
+\subsection{Sensibilidad}
+\textbf{Sobrecupo (600 personas, 20\,\% más).} Con el montaje PSO, la densidad pico sube 5.4\,\% y $T_{95}$ sube 16.1\,\% (unos 40 s). El PSO sigue teniendo menos densidad que la base con el mismo sobrecupo ($-5.6$\,\%), pero ahora su $T_{95}$ es 2.6\,\% mayor, y esa diferencia sí es significativa. Las barras del PSO están en el norte, donde empieza el público; con más gente, las filas y el flujo de salida se estorban más en esa zona.
+
+\textbf{Terminal lenta (atención media de 24.6 s, 50\,\% más).} $T_{95}$ sube 40.7\,\% (unos 100 s) y la densidad pico no cambia. El pico ocurre en el primer minuto, cuando salen quienes no compran, así que no depende de la atención. El tiempo, en cambio, crece casi en proporción a la lentitud de las barras, porque el final de la salida lo marcan las filas. Con la terminal lenta, la base y el PSO tardan lo mismo.
+
+En resumen, el diseño PSO mantiene su ventaja en densidad en los tres escenarios, pero no mejora el tiempo de salida en ninguno. Lo que más mueve el tiempo es la capacidad de atención de las barras, no su ubicación.
+
+\subsection{Incertidumbre, límites y riesgo de extrapolar}
+\begin{itemize}
+\item \textbf{Incertidumbre estadística.} Los intervalos de la Tabla~\ref{tab:resumen} miden la variación entre réplicas del modelo, no el error del modelo frente a la realidad. El montaje ganador se eligió sin usar las semillas 1001 a 1030, así que estas comparaciones no están infladas por la búsqueda.
+\item \textbf{Validez del modelo.} El modelo no tiene fuerzas de contacto físico. Sin ellas, las personas guardan entre sí una distancia que limita la densidad a unas 2 a 3 personas por m$^2$ en condiciones normales. Por encima de 4 o 5 personas por m$^2$ aparecen en la realidad la compresión y los empujones en cadena \citep{helbing2007}, que este modelo no representa. Por eso la comprobación del límite de 4 solo tiene sentido mientras la densidad simulada esté lejos de ese valor, como aquí.
+\item \textbf{Relación casi lineal.} Mientras las barras sean el cuello de botella, $T_{95}$ crece casi en proporción al tiempo de atención y al número de compradores. Esa relación deja de valer si los portones se saturan (con mucha más gente) o si la multitud se comprime; ahí el tiempo puede crecer mucho más rápido.
+\item \textbf{Extrapolación.} Se modelan 500 a 600 personas en una ventana de 80 por 50 m, cuando en un concierto real hay más de 15 mil en todo el recinto. El modelo se calibró con puertas de 0.9 a 2.5 m y personas jóvenes en laboratorio. Los resultados no deben usarse para emergencias, pánico, lluvia, otras posiciones de portones ni multitudes mucho más grandes sin calibrar de nuevo.
+\item \textbf{Supuestos sin dato real.} La posición de los portones, el tamaño de las barras, la variación del tiempo de atención, la regla de desistir a los 2 minutos y la posición inicial del público son estimaciones. Cambiarlas puede cambiar el resultado.
+\end{itemize}
 
 \printbibliography[title={Referencias}]
 

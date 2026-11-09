@@ -1,0 +1,7 @@
+Condición,Mobiliario,Aforo,Media servicio (s),Réplicas,Diseño
+Base perimetral,Fijo lateral,500,16.4,30,sí
+Propuesta PSO,Optimizado,500,16.4,30,sí
+Sensibilidad sobrecupo,Optimizado,600,16.4,30,sí
+Sensibilidad terminal,Optimizado,500,24.6,30,sí
+Base con sobrecupo,Fijo lateral,600,16.4,30,adicional
+Base con terminal lenta,Fijo lateral,500,24.6,30,adicional

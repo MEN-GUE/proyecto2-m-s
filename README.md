@@ -46,6 +46,12 @@ Solo la búsqueda con PSO:
 .venv/bin/python -m src.optimizer.objective
 ```
 
+Solo la matriz experimental (4 condiciones pedidas y 2 adicionales, 30 réplicas cada una, semillas 1001 a 1030):
+
+```bash
+.venv/bin/python -m src.simulation.experiments
+```
+
 Pruebas automáticas (conservación de personas, cruce de muros, tiempo en flujo libre, PSO y validador):
 
 ```bash

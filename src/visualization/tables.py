@@ -39,6 +39,8 @@ def model_parameters():
         ["Atención (media, CV)", "", f"LogNormal({P.SERVICE_MEAN}, {P.SERVICE_CV})", "s", "Enunciado; CV estimado"],
         ["Puntos de atención por barra", "", P.SERVERS_PER_BAR, "", "Estimación"],
         ["Separación en fila", "", P.QUEUE_SPACING, "m", "Reposo con $A_p$, $B_p$"],
+        ["Distancia para empezar la atención", "", P.SERVICE_RADIUS, "m", "Estimación"],
+        ["Tiempo para desistir de comprar", "", P.GIVE_UP, "s", "Estimación"],
         ["Kernel de densidad", "$\\sigma$", P.DENS_SIGMA, "m", "Helbing et al. (2007)"],
         ["Celda de densidad", "", P.DENS_H, "m", "Elección"],
     ]

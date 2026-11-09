@@ -39,6 +39,8 @@ DT = 0.05
 T_MAX = 900.0
 EXIT_MARGIN = 0.3                # se cuenta como evacuado 0.3 m despues del porton
 NAV_CLEAR = 0.6                  # holgura preferida al planear rutas
+SERVICE_RADIUS = 1.0             # distancia al punto de atencion para empezar a atender
+GIVE_UP = 120.0                  # quien no entra a una fila en este tiempo desiste
 
 # Densidad
 DENS_H = 0.5

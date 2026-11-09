@@ -118,18 +118,15 @@ def make_agents(scene, n, service_mean, seed, box=P.SPAWN_BOX, min_dist=0.6):
 
 def simulate(scene, agents, tau=None, record=False, t_max=P.T_MAX):
     tau = P.TAU if tau is None else tau
-    prm = np.zeros(13)
-    prm[[engine.TAU, engine.A, engine.B, engine.AW, engine.BW, engine.MASS, engine.DT, engine.TMAX,
-         engine.VCAP, engine.SIGMA, engine.SAMPLE, engine.SPACING, engine.MARGIN]] = [
-        tau, P.A_P, P.B_P, P.A_W, P.B_W, P.MASS, P.DT, t_max, P.V_CAP, P.DENS_SIGMA, P.SAMPLE_DT,
-        P.QUEUE_SPACING, P.EXIT_MARGIN]
+    prm = np.array([tau, P.A_P, P.B_P, P.A_W, P.B_W, P.MASS, P.DT, t_max, P.V_CAP, P.DENS_SIGMA, P.SAMPLE_DT,
+                    P.QUEUE_SPACING, P.EXIT_MARGIN, P.SERVICE_RADIUS, P.GIVE_UP])
     n = len(agents["pos"])
     frames = np.zeros((int(t_max / P.SAMPLE_DT) + 3 if record else 0, n, 2))
     out = engine.simulate(agents["pos"], agents["v0"], agents["rad"], agents["line"], agents["dur"],
                           scene["walls"], scene["gates"], scene["fdist"], scene["fdir"],
                           scene["line_field"], scene["sp"], scene["qdir"], scene["nav0"], scene["dens0"],
                           scene["walk"], prm, frames)
-    keys = ["t_exit", "gate", "exit_state", "dens", "n_in", "n_out", "dens_map", "crossings", "t_end"]
+    keys = ["t_exit", "gate", "unserved", "dens", "n_in", "n_out", "dens_map", "crossings", "t_end"]
     res = dict(zip(keys, out))
     if record:
         res["frames"] = frames[:len(res["dens"])]
@@ -147,7 +144,7 @@ def metrics(res, n, gate_width=P.GATE_WIDTH, window=10.0):
             "t_all": float(t[-1]), "evacuated": int(np.isfinite(t).sum()),
             "conservation": bool(np.all(res["n_in"] + res["n_out"] == n)),
             "crossings": int(res["crossings"]), "peak_flow": float(max(flows, default=0.0)),
-            "left_unserved": int((res["exit_state"] == 0).sum())}
+            "left_unserved": int(res["unserved"])}
 
 
 def run(layout, n=P.N_AGENTS, service_mean=P.SERVICE_MEAN, seed=1001, tau=None, record=False, scene=None):
