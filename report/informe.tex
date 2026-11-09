@@ -1,5 +1,5 @@
 \documentclass[11pt,letterpaper]{article}
-\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -11,7 +11,9 @@
 \usepackage{float}
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
-\usepackage[round]{natbib}
+\usepackage[spanish=mexican]{csquotes}
+\usepackage[style=authoryear,natbib=true,maxcitenames=2,uniquelist=false,uniquename=false]{biblatex}
+\addbibresource{referencias.bib}
 \graphicspath{{../results/figures/}}
 
 \newcommand{\autor}{Nombre del autor}
@@ -111,7 +113,104 @@ Posici\'on inicial y compras & Sint\'etico & Generado con semillas fijas \\
 \end{tabularx}
 \end{table}
 
-\bibliographystyle{apalike}
-\bibliography{referencias}
+\section{Técnica investigada: enjambre de partículas}
+
+\subsection{Idea y funcionamiento}
+El enjambre de partículas (PSO) es un método de búsqueda inspirado en el movimiento de bandadas \citep{kennedy1995}. Cada partícula es una solución completa, en este caso un montaje de barras y vallas. Las partículas se mueven por el espacio de búsqueda y en cada paso combinan tres tendencias: seguir moviéndose en la misma dirección, volver hacia el mejor punto que ellas mismas han visto ($p_i$) y acercarse al mejor punto que ha visto todo el enjambre ($g$):
+\begin{equation}
+v_i^{k+1} = w^k v_i^k + c_1 r_1 (p_i - x_i^k) + c_2 r_2 (g - x_i^k), \qquad x_i^{k+1} = x_i^k + v_i^{k+1}
+\end{equation}
+donde $r_1$ y $r_2$ son números aleatorios uniformes entre 0 y 1, distintos para cada coordenada. El peso de inercia $w^k$ baja de 0.9 a 0.4 a lo largo de las iteraciones: al inicio las partículas recorren mucho terreno y al final afinan cerca de lo mejor encontrado \citep{shi1998}. Los coeficientes $c_1 = c_2 = 1.49$ están cerca del valor 1.49445 que \citet{clerc2002} mostraron que mantiene estable el movimiento del enjambre.
+
+\subsection{Representación de una solución}
+Cada partícula es un vector $x \in \mathbb{R}^{14}$: las coordenadas $(x, y)$ del centro de las cuatro barras (8 valores) y, para cada una de las dos vallas, su punto medio y su ángulo $\theta \in [-\pi/2, \pi/2]$ (6 valores). Las barras pueden ir a cualquier punto del rectángulo que contiene al recinto. Cada valla se limita a un cuadro de 16 por 16 metros frente a su portón (Tabla~\ref{tab:limites}).
+
+El ángulo necesita un cuidado especial. Una valla girada $\pi/2$ es la misma que una girada $-\pi/2$, así que recortar el ángulo en los bordes partiría en dos una misma orientación. Por eso, cuando una partícula se pasa del borde en el ángulo, reaparece por el otro lado. En las coordenadas de posición sí se recorta y se anula la velocidad.
+
+\begin{table}[H]
+\centering
+\caption{Límites de búsqueda de cada variable.}
+\label{tab:limites}
+\input{../results/tables/limites_pso.tex}
+\end{table}
+
+\subsection{Procedimiento}
+\begin{enumerate}
+\item Crear 12 partículas en montajes válidos tomados al azar dentro de los límites (los inválidos se descartan) y con velocidad cero.
+\item Evaluar cada partícula. Primero pasa por el validador geométrico; solo si es válida se simula.
+\item Para cada iteración $k$ hasta 25: calcular $w^k$, actualizar velocidades con la ecuación anterior, limitar cada componente de la velocidad al 20\,\% del rango de esa variable, mover las partículas, aplicar los límites y evaluar.
+\item Actualizar el mejor punto de cada partícula y el del enjambre.
+\item Detenerse si el mejor valor del enjambre mejora menos de 0.001 durante 5 iteraciones seguidas.
+\end{enumerate}
+
+La regla de paro pedía detenerse cuando la mejora fuera menor a 0.001. Aplicada a una sola iteración, el método se detiene casi de inmediato, porque es normal que el mejor valor del enjambre no cambie en una iteración y sí cambie en la siguiente. Por eso se exigen 5 iteraciones seguidas sin mejora.
+
+\subsection{Parámetros}
+\begin{table}[H]
+\centering
+\caption{Parámetros del PSO.}
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+Parámetro & Valor & Justificación \\
+\midrule
+Partículas & 12 & Cada evaluación cuesta 3 simulaciones; 12 partículas por 25 iteraciones son 900 simulaciones por corrida. \\
+Iteraciones & 25 & Presupuesto de cómputo de una corrida en una computadora personal. \\
+Inercia $w$ & 0.9 a 0.4 & Valores de \citet{shi1998}. \\
+$c_1$, $c_2$ & 1.49 & Cercanos al valor estable de \citet{clerc2002}. \\
+Velocidad máxima & 20\,\% del rango & Evita que las partículas salten de un borde al otro. \\
+Paro & mejora $<$ 0.001 en 5 iteraciones & Ver el procedimiento. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Validador geométrico y restricciones}
+Antes de simular, cada montaje pasa por un validador escrito para este proyecto. El recinto se divide en celdas de 0.25 por 0.25 metros y se revisan cinco reglas:
+\begin{enumerate}
+\item Ningún mueble sale del recinto.
+\item Dos muebles no se tocan ni dejan entre sí un paso menor a 1.12 metros.
+\item Ningún mueble entra en el círculo de 5 metros alrededor de cada portón.
+\item Frente a la cara de atención de cada barra quedan 8 metros libres para la fila, fuera de ese círculo.
+\item Desde toda zona por donde se camina se puede llegar a un portón por pasos de al menos 1.12 metros. Esto se comprueba con el algoritmo de Dijkstra sobre las celdas.
+\end{enumerate}
+Cada regla incumplida suma a la penalización $P_{\text{geom}}$ el área en metros cuadrados donde ocurre. Un montaje es válido solo si $P_{\text{geom}} = 0$. Si no lo es, no se simula y recibe $J = 2 + \lambda_{\text{geom}} P_{\text{geom}}$, que siempre es peor que cualquier montaje válido. Así el enjambre sabe cuánto se equivocó y hacia dónde corregir.
+
+La Tabla~\ref{tab:factibilidad} muestra que solo el 3.4\,\% de los montajes tomados al azar cumplen todas las reglas. La regla que más falla es la de la zona de fila. La zona válida es pequeña y está partida en pedazos, por lo que en la búsqueda real el enjambre arranca con partículas válidas.
+
+\begin{table}[H]
+\centering
+\caption{Montajes al azar frente al validador y búsqueda de un montaje válido con PSO.}
+\label{tab:factibilidad}
+\input{../results/tables/factibilidad.tex}
+\end{table}
+
+\subsection{Por qué PSO y no otra técnica}
+La función que se quiere minimizar sale de una simulación con azar, colas y eventos discretos. No tiene derivadas y cambia un poco entre semillas, así que los métodos basados en gradiente no sirven. Entre los métodos que no usan derivadas, se eligió PSO por tres razones:
+\begin{itemize}
+\item Cada partícula se mueve de forma continua, así que un montaje cambia poco a poco y conserva su sentido geométrico. En un algoritmo genético el cruce mezcla coordenadas de montajes distintos y suele producir barras encimadas, lo que aquí es grave porque solo el 3.4\,\% del espacio es válido.
+\item Tiene pocos parámetros y valores recomendados en la literatura.
+\item Las 12 partículas de una iteración se evalúan al mismo tiempo en varios núcleos.
+\end{itemize}
+El recocido simulado trabaja con una sola solución a la vez y no aprovecha ese paralelismo. La optimización bayesiana necesita menos evaluaciones, pero con 14 variables y restricciones es más difícil de programar desde cero. Ninguna de estas razones garantiza que PSO sea mejor que un algoritmo genético en este problema; es una elección razonada.
+
+\subsection{Limitaciones}
+\begin{itemize}
+\item \textbf{Óptimos locales.} Con el presupuesto de este proyecto el enjambre se estanca con facilidad. En la función de prueba de Rastrigin en dos dimensiones, con la misma configuración (12 partículas, 25 iteraciones y la misma regla de paro), solo 1 de 20 corridas llegó al óptimo global (Tabla~\ref{tab:rastrigin}).
+\item \textbf{Pérdida de diversidad.} Al final las partículas quedan juntas (diversidad media de 0.086 en unidades del rango) y ya no exploran.
+\item \textbf{Atrapamiento geométrico.} Como la zona válida está partida, una barra encerrada entre una pared y otro mueble tendría que atravesar montajes inválidos para llegar a un lugar mejor, y la penalización la frena.
+\item \textbf{Ruido.} Con 3 semillas por partícula, un montaje puede parecer bueno por suerte. Por eso el ganador se vuelve a evaluar con 30 réplicas nuevas.
+\end{itemize}
+Para medir el estancamiento se guardan por iteración el mejor valor, el promedio y la diversidad del enjambre, y la búsqueda se repite 3 veces con semillas distintas para ver si llega al mismo montaje.
+
+\begin{table}[H]
+\centering
+\caption{PSO con la configuración del proyecto sobre la función de Rastrigin (20 semillas).}
+\label{tab:rastrigin}
+\input{../results/tables/pso_rastrigin_resumen.tex}
+\end{table}
+
+\subsection{Qué se programó y qué se tomó de bibliotecas}
+El PSO, la regla de paro, el manejo del ángulo, el validador (prueba de punto en polígono, distancias a segmentos, penalizaciones) y el algoritmo de Dijkstra se programaron en este proyecto. NumPy solo se usa para operar con arreglos y generar números aleatorios. Numba compila el algoritmo de Dijkstra a código de máquina \citep{lam2015,numbadocs}. La biblioteca shapely solo se usa una vez, en la Parte 1, para recortar el polígono de OpenStreetMap a la ventana de estudio.
+
+\printbibliography[title={Referencias}]
 
 \end{document}

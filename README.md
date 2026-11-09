@@ -38,6 +38,12 @@ python -m venv .venv
 .venv/bin/python run_all.py
 ```
 
+Pruebas automáticas:
+
+```bash
+.venv/bin/python -m pytest -q
+```
+
 ## Datos
 
 | Dato | Tipo | Fuente |

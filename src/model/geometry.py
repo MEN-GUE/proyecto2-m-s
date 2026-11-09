@@ -68,7 +68,7 @@ def fence_line(mx, my, th):
 
 def baseline_layout(venue):
     bars = []
-    for cy in (9.5, 18.5, 27.5, 36.5):
+    for cy in (11.0, 19.5, 28.0, 36.5):
         strip = venue.domain.exterior.intersection(box(-1, cy - P.BAR_H / 2, 20, cy + P.BAR_H / 2))
         bars.append((strip.bounds[2] + 0.2 + P.BAR_W / 2, cy))
     return {"bars": bars, "fences": []}
