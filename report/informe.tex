@@ -174,7 +174,7 @@ Antes de simular, cada montaje pasa por un validador escrito para este proyecto.
 \item Frente a la cara de atención de cada barra quedan 8 metros libres para la fila, fuera de ese círculo.
 \item Desde toda zona por donde se camina se puede llegar a un portón por pasos de al menos 1.12 metros. Esto se comprueba con el algoritmo de Dijkstra sobre las celdas.
 \end{enumerate}
-Cada regla incumplida suma a la penalización $P_{\text{geom}}$ el área en metros cuadrados donde ocurre. Un montaje es válido solo si $P_{\text{geom}} = 0$. Si no lo es, no se simula y recibe $J = 2 + \lambda_{\text{geom}} P_{\text{geom}}$, que siempre es peor que cualquier montaje válido. Así el enjambre sabe cuánto se equivocó y hacia dónde corregir.
+Cada regla incumplida suma a la penalización $P_{\text{geom}}$ el área en metros cuadrados donde ocurre. Un montaje es válido solo si $P_{\text{geom}} = 0$. Si no lo es, no se simula y recibe $J = 10 + \lambda_{\text{geom}} P_{\text{geom}}$, un valor mucho peor que el de cualquier montaje válido (cerca de 1). Así el enjambre sabe cuánto se equivocó y hacia dónde corregir.
 
 La Tabla~\ref{tab:factibilidad} muestra que solo el 3.3\,\% de los montajes tomados al azar cumplen todas las reglas. La regla que más falla es la de la zona de fila. La zona válida es pequeña y está partida en pedazos, por lo que en la búsqueda real el enjambre arranca con partículas válidas.
 
@@ -348,6 +348,78 @@ El menor error se obtiene con $\tau = 0.50$ s: MAE de 0.170 personas/(m s), que 
 
 \subsection{Qué tan bien corresponde}
 El modelo acierta el nivel promedio del flujo, pero no su forma. En los datos reales el flujo por metro es casi el mismo para todos los anchos. En el modelo crece con el ancho: en puertas de 0.9 y 1.0 m se queda corto por unos 0.25, y en puertas de 2.0 m o más se pasa hasta por 0.39. Los portones del recinto miden 4 m, fuera del rango medido. Si la tendencia sigue, el modelo podría sobreestimar la capacidad de los portones, y los tiempos de salida simulados serían algo optimistas. Además, los participantes de Jülich eran soldados jóvenes en un experimento de laboratorio. El público de un concierto nocturno puede caminar más lento y en grupos, lo que también bajaría el flujo real.
+
+\section{Integración del PSO con la simulación}
+
+\subsection{Función objetivo}
+El enjambre minimiza
+\begin{equation}
+J(x) = 0.6\,\frac{\overline{D}_{\max}(x)}{D_{\text{base}}} + 0.4\,\frac{\overline{T}_{95}(x)}{T_{\text{base}}} + \lambda_{\text{geom}} P_{\text{geom}}(x) + \lambda_{\text{dens}} \max\left(0, \overline{D}_{\max}(x) - 4\right)^2
+\end{equation}
+donde la barra indica el promedio sobre las 3 semillas de búsqueda. $D_{\text{base}}$ y $T_{\text{base}}$ son los valores del montaje base con esas mismas semillas, así que la base vale exactamente $J = 1$ y cualquier valor menor significa una mejora. El último término castiga con fuerza los montajes que superan 4 personas por m$^2$. Si el validador rechaza un montaje, este no se simula y recibe $J = 10 + \lambda_{\text{geom}} P_{\text{geom}}$. La Tabla~\ref{tab:objetivo} resume los valores usados.
+
+\begin{table}[H]
+\centering
+\caption{Elementos de la función objetivo y de la búsqueda.}
+\label{tab:objetivo}
+\input{../results/tables/parametros_objetivo.tex}
+\end{table}
+
+\subsection{Cómo se conectan el enjambre y el simulador}
+En cada iteración se decodifican los 12 vectores en montajes, se pasan por el validador y los válidos se simulan con las semillas 1, 2 y 3, cada partícula en un proceso distinto. Con los valores de $J$ el enjambre actualiza velocidades y posiciones. El enjambre arranca con 12 montajes válidos tomados al azar: se generan montajes hasta encontrar 12 que pasen el validador. Cada iteración tarda entre 2 y 3 segundos y la búsqueda completa, unos 2 minutos.
+
+La búsqueda se repitió con tres semillas del enjambre (11, 12 y 13). Como 3 semillas de simulación dan un promedio con ruido, el mejor montaje de cada reinicio se volvió a evaluar con 10 semillas nuevas (2001 a 2010), y el ganador es el que obtuvo el menor $J$ con ellas. Las semillas 1001 a 1030, que se usan en el experimento final, no se tocan durante la búsqueda ni la selección; así la comparación final no está sesgada a favor del montaje elegido.
+
+Se hizo además una corrida extra con la semilla 13 que no se detiene antes de las 25 iteraciones. Sirve solo para medir el efecto de la regla de paro y no participa en la elección del ganador.
+
+\subsection{Resultados de la búsqueda}
+\begin{table}[H]
+\centering
+\caption{Resultado de cada reinicio. ``J búsqueda'' usa las semillas 1 a 3 y ``J selección'' las semillas 2001 a 2010. ``Inválidas'' es el promedio por iteración después del arranque.}
+\label{tab:reinicios}
+\resizebox{\textwidth}{!}{\input{../results/tables/pso_reinicios.tex}}
+\end{table}
+
+Los tres reinicios encontraron montajes con $J$ entre 0.95 y 0.98 durante la búsqueda (Tabla~\ref{tab:reinicios}). Con semillas nuevas, solo el del reinicio 13 sigue por debajo de 1 (0.993); los otros dos quedan un poco peor que la base. Los valores de la búsqueda son optimistas porque, entre muchas evaluaciones con ruido, el enjambre se queda con la que salió mejor por azar. Por eso hacía falta el paso de selección.
+
+El montaje ganador (Figura~\ref{fig:layouts}) aleja las cuatro barras del borde oeste y las acerca a la zona donde empieza el público. Pone una valla pegada al borde oeste, antes del portón suroeste, y otra unos 6 m al norte del portón sureste. Con las semillas de selección, la densidad pico baja de 2.132 a 2.088 personas/m$^2$ y $T_{95}$ sube de 260.7 a 263.9 s.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_layouts.png}
+\caption{Montaje base y mejor montaje de cada reinicio del PSO. Las vallas aparecen en morado.}
+\label{fig:layouts}
+\end{figure}
+
+\subsection{Verificación de restricciones}
+La Tabla~\ref{tab:restricciones} muestra la comprobación por código para la base y el montaje PSO. Ninguno saca muebles del recinto, deja pasos angostos, invade el radio de 5 m de los portones, tapa la zona de fila ni deja áreas sin salida. En las 10 corridas de selección, el mapa de densidad suavizado nunca pasa de 4 personas por m$^2$ en ninguna celda transitable. El valor más alto fue 2.32 en la base y 2.21 con el PSO. Con 500 personas en esta zona, el límite de 4 no llega a estar en juego.
+
+\begin{table}[H]
+\centering
+\caption{Comprobación de restricciones por código (10 corridas por montaje).}
+\label{tab:restricciones}
+\input{../results/tables/restricciones.tex}
+\end{table}
+
+\subsection{Análisis de estancamiento}
+La Figura~\ref{fig:convergencia} muestra cómo avanzó cada búsqueda.
+\begin{itemize}
+\item \textbf{Mejoras en escalones y paro temprano.} El mejor valor baja en las primeras iteraciones y luego se queda quieto. La regla de paro cortó las búsquedas entre las iteraciones 8 y 12.
+\item \textbf{Muchas evaluaciones perdidas.} Después del arranque, entre el 60 y el 72\,\% de las partículas de cada iteración cae en montajes inválidos. La zona válida es pequeña y está partida: para pasar de un buen montaje a otro, las partículas atraviesan montajes inválidos, que no se simulan. En la práctica, cada iteración evalúa de verdad solo 3 a 5 montajes.
+\item \textbf{Varios óptimos de calidad parecida.} Los ganadores de los tres reinicios están lejos entre sí: aun emparejando cada barra con la más cercana del otro montaje, difieren entre 11 y 18 m en promedio por barra, con valores de $J$ muy parecidos. Esto indica muchos óptimos locales o un paisaje casi plano comparado con el ruido.
+\item \textbf{Simetría.} Las cuatro barras son iguales, así que cada montaje aparece 24 veces en el espacio de búsqueda con las barras en distinto orden. El enjambre puede repartirse entre copias equivalentes y eso frena la convergencia.
+\item \textbf{Ruido.} Entre semillas, $D_{\max}$ varía unos 0.1 personas/m$^2$ y $T_{95}$ unos 17 s. Con 3 semillas, eso da un error típico de unos 0.02 en $J$, del mismo tamaño que las mejoras encontradas.
+\item \textbf{Efecto de la regla de paro.} Sin paro temprano, la diversidad baja de 0.45 a 0.23 y $J$ de selección mejora apenas de 0.993 a 0.989, mientras las barras se mueven solo 4 m en promedio. Más iteraciones refinan el mismo óptimo, no encuentran uno mejor.
+\end{itemize}
+
+Con este presupuesto, el PSO funciona más como una búsqueda guiada entre montajes válidos que como un método que converge al mejor montaje. La mejora encontrada es pequeña, y la Sección siguiente la pone a prueba con 30 réplicas.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_pso_convergencia.png}
+\caption{Mejor $J$, porcentaje de partículas inválidas y diversidad del enjambre por iteración. La línea punteada roja es la corrida sin paro temprano.}
+\label{fig:convergencia}
+\end{figure}
 
 \printbibliography[title={Referencias}]
 

@@ -3,12 +3,13 @@ import argparse
 from src.model.data import fetch_osm
 from src.model.geometry import Venue
 from src.model.grid import Grid
-from src.optimizer.objective import feasibility_study, save_bounds
+from src.optimizer.objective import feasibility_study, optimize, save_bounds, verify_constraints
 from src.optimizer.pso import benchmark
 from src.simulation.calibration import calibrate
 from src.simulation.checks import summary as verification
 from src.visualization import export_web
-from src.visualization.figures import plot_calibration, plot_snapshots, plot_venue
+from src.visualization.figures import (plot_calibration, plot_layouts, plot_pso_convergence, plot_snapshots,
+                                      plot_venue)
 from src.visualization.tables import model_parameters
 
 
@@ -28,7 +29,12 @@ def main():
     model_parameters()
     verification()
     plot_snapshots()
-    export_web.save(export_web.export("base"))
+    optimize(iters=8 if args.quick else 25)
+    verify_constraints()
+    plot_pso_convergence()
+    plot_layouts()
+    for name in ("base", "pso"):
+        export_web.save(export_web.export(name))
 
 
 if __name__ == "__main__":

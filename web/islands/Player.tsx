@@ -52,7 +52,7 @@ function densityGrid(frame: number[]) {
 
 function draw(cv: HTMLCanvasElement, run: Run, k: number, showDensity: boolean) {
   const ctx = cv.getContext("2d")!;
-  const s = cv.width / (W + 2 * PAD);
+  const s = cv.width / (W + 2 * PAD), dpr = cv.width / (cv.clientWidth || cv.width);
   const X = (x: number) => (x + PAD) * s, Y = (y: number) => cv.height - (y + PAD) * s;
   const geo = run.geometry;
   ctx.clearRect(0, 0, cv.width, cv.height);
@@ -77,7 +77,7 @@ function draw(cv: HTMLCanvasElement, run: Run, k: number, showDensity: boolean) 
   }
   const seg = (p: number[], color: string, width: number) => {
     ctx.strokeStyle = color;
-    ctx.lineWidth = width;
+    ctx.lineWidth = width * dpr;
     ctx.beginPath();
     ctx.moveTo(X(p[0]), Y(p[1]));
     ctx.lineTo(X(p[2]), Y(p[3]));
@@ -89,7 +89,8 @@ function draw(cv: HTMLCanvasElement, run: Run, k: number, showDensity: boolean) 
   ctx.fillStyle = C.bar;
   const [bw, bh] = geo.bar_size;
   geo.bars.forEach(([x, y]) => ctx.fillRect(X(x - bw / 2), Y(y + bh / 2), bw * s, bh * s));
-  const r = Math.max(1.5, 0.27 * s);
+  const r = Math.max(1.5 * dpr, 0.27 * s);
+  ctx.lineCap = "round";
   for (let i = 0; i < frame.length; i += 2) {
     if (frame[i] < 0) continue;
     ctx.fillStyle = run.buyer[i / 2] ? C.buyer : C.walker;
@@ -127,7 +128,7 @@ function Panel({ run, k, showDensity }: { run: Run | null; k: number; showDensit
   useEffect(() => {
     const cv = ref.current;
     if (!cv || !run) return;
-    const width = cv.parentElement!.clientWidth;
+    const width = Math.round(cv.clientWidth * (globalThis.devicePixelRatio || 1));
     if (cv.width !== width) {
       cv.width = width;
       cv.height = Math.round(width * (H + 2 * PAD) / (W + 2 * PAD));

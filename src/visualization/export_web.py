@@ -6,20 +6,12 @@ from pathlib import Path
 import numpy as np
 
 from ..model import params as P
-from ..model.geometry import baseline_layout, fence_line
+from ..model.geometry import fence_line
+from ..optimizer.objective import load_layout
 from ..simulation.runner import build_scene, context, make_agents, metrics, simulate
 
 ROOT = Path(__file__).resolve().parents[2]
 WEB_DATA = ROOT / "web/static/data"
-LAYOUTS = ROOT / "results/layouts"
-
-
-def load_layout(name):
-    venue, _ = context()
-    if name == "base":
-        return baseline_layout(venue)
-    data = json.loads((LAYOUTS / f"{name}.json").read_text())
-    return {"bars": [tuple(b) for b in data["bars"]], "fences": [tuple(f) for f in data["fences"]]}
 
 
 def export(name="base", n=P.N_AGENTS, seed=1001, service_mean=P.SERVICE_MEAN, tau=None):

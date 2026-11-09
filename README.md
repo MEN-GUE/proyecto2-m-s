@@ -38,6 +38,14 @@ python -m venv .venv
 .venv/bin/python run_all.py
 ```
 
+El flujo completo descarga los datos que falten, calibra el modelo con Jülich, corre el PSO con tres reinicios, verifica las restricciones y deja tablas, figuras y corridas para la web en `results/` y `web/static/data/`. Con la opción `--quick` corre una versión corta solo para probar que todo funciona; esa versión sobrescribe los resultados, así que para el informe se usa la corrida completa.
+
+Solo la búsqueda con PSO:
+
+```bash
+.venv/bin/python -m src.optimizer.objective
+```
+
 Pruebas automáticas (conservación de personas, cruce de muros, tiempo en flujo libre, PSO y validador):
 
 ```bash

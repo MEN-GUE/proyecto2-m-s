@@ -100,5 +100,61 @@ def plot_calibration(name="fig_calibracion.png"):
     return FIG_DIR / name
 
 
+def _pso_logs():
+    import json
+    logs = sorted((FIG_DIR.parent / "logs").glob("pso_reinicio_*.json"))
+    return [json.loads(f.read_text()) for f in logs]
+
+
+def plot_pso_convergence(name="fig_pso_convergencia.png"):
+    import numpy as np
+    fig, axs = plt.subplots(1, 3, figsize=(14, 4))
+    for d in _pso_logs():
+        it = [h["iter"] for h in d["history"]]
+        ls = "--" if "sin paro" in d["name"] else "-"
+        axs[0].plot(it, [h["best"] for h in d["history"]], ls, marker="o", ms=3, label=f"Reinicio {d['name']}")
+        axs[1].plot(it, [100 * np.mean(np.array(h["values"]) >= 10) for h in d["history"]], ls, marker="o", ms=3)
+        axs[2].plot(it, [h["diversity"] for h in d["history"]], ls, marker="o", ms=3)
+    axs[0].axhline(1, color="k", ls=":", label="Base (J = 1)")
+    for ax, t, y in zip(axs, ("Mejor J del enjambre", "Partículas inválidas", "Diversidad del enjambre"),
+                        ("J (3 semillas)", "Inválidas (%)", "Distancia media al centro (rango = 1)")):
+        ax.set_title(t)
+        ax.set_xlabel("Iteración")
+        ax.set_ylabel(y)
+    axs[0].legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(FIG_DIR / name)
+    plt.close(fig)
+    return FIG_DIR / name
+
+
+def plot_layouts(name="fig_layouts.png"):
+    import json
+    from ..optimizer.objective import decode
+    venue = Venue()
+    rows = {r[0]: r for r in csv_rows("pso_reinicios")}
+    items = [("Base", baseline_layout(venue))]
+    items += [(d["name"], decode(d["best"])) for d in _pso_logs() if "sin paro" not in d["name"]]
+    win = json.loads((FIG_DIR.parent / "layouts/pso.json").read_text())["restart"]
+    fig, axs = plt.subplots(2, 2, figsize=(11, 7.5))
+    for ax, (nm, lay) in zip(axs.flat, items):
+        draw_layout(ax, venue, lay, label=nm == "Base")
+        title = "Montaje base" if nm == "Base" else f"Reinicio {nm}" + (" (ganador)" if nm == win else "")
+        ax.set_title(f"{title}, J con 10 semillas = {float(rows[nm][5]):.3f}")
+        ax.set_xlim(-2, P.WIDTH + 2)
+        ax.set_ylim(-2, P.HEIGHT + 2)
+    axs[0, 0].legend(loc="lower right", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(FIG_DIR / name)
+    plt.close(fig)
+    return FIG_DIR / name
+
+
+def csv_rows(table):
+    import csv
+    with open(FIG_DIR.parent / "tables" / f"{table}.csv") as fh:
+        return list(csv.reader(fh))[1:]
+
+
 if __name__ == "__main__":
     print(plot_venue(), plot_snapshots())

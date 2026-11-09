@@ -7,7 +7,8 @@ TAB_DIR = Path(__file__).resolve().parents[2] / "results/tables"
 def _fmt(x):
     if isinstance(x, float):
         return f"{x:.3f}".rstrip("0").rstrip(".")
-    return str(x).replace("%", "\\%").replace("_", "\\_").replace("&", "\\&")
+    x = str(x)
+    return x if x.startswith("$") else x.replace("%", "\\%").replace("_", "\\_").replace("&", "\\&")
 
 
 def save(name, header, rows):
