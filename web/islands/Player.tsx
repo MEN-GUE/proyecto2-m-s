@@ -32,7 +32,7 @@ const C = {
 function label(name: string) {
   const m = name.match(/^([a-z]+)_n(\d+)_s(\d+)(?:_t([\d.]+))?/);
   if (!m) return name;
-  const extra = m[4] ? `, atención ${m[4]} s` : "";
+  const extra = m[4] && m[4] !== "16.4" ? `, atención ${m[4]} s` : "";
   const fresh = name.includes("(nueva)") ? " (nueva)" : "";
   return `${m[1] === "base" ? "Base" : "PSO"}, ${m[2]} personas, semilla ${m[3]}${extra}${fresh}`;
 }
@@ -53,9 +53,10 @@ function densityGrid(frame: number[]) {
   return { g, nx, ny };
 }
 
-function draw(cv: HTMLCanvasElement, run: Run, k: number, showDensity: boolean) {
-  const ctx = cv.getContext("2d")!;
-  const s = cv.width / (W + 2 * PAD), dpr = cv.width / (cv.clientWidth || cv.width);
+function draw(cv: HTMLCanvasElement, run: Run, k: number, showDensity: boolean, dpr: number) {
+  const ctx = cv.getContext("2d");
+  if (!ctx) return;
+  const s = cv.width / (W + 2 * PAD);
   const X = (x: number) => (x + PAD) * s, Y = (y: number) => cv.height - (y + PAD) * s;
   const geo = run.geometry;
   ctx.clearRect(0, 0, cv.width, cv.height);
@@ -63,7 +64,7 @@ function draw(cv: HTMLCanvasElement, run: Run, k: number, showDensity: boolean) 
   ctx.beginPath();
   geo.domain.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y)));
   ctx.fill();
-  const frame = run.frames[Math.min(k, run.frames.length - 1)];
+  const frame = run.frames[Math.max(0, Math.min(k, run.frames.length - 1))] ?? [];
   if (showDensity) {
     const { g, nx, ny } = densityGrid(frame);
     for (let a = 0; a < nx; a++) {
@@ -127,22 +128,40 @@ function Chart({ runs, k }: { runs: Run[]; k: number }) {
 }
 
 function Panel({ run, k, showDensity }: { run: Run | null; k: number; showDensity: boolean }) {
+  const box = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLCanvasElement>(null);
+  const [cssWidth, setCssWidth] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const fit = () => setCssWidth(Math.floor(el.clientWidth));
+    fit();
+    const obs = new ResizeObserver(fit);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [run !== null]);
   useEffect(() => {
     const cv = ref.current;
-    if (!cv || !run) return;
-    const width = Math.round(cv.clientWidth * (globalThis.devicePixelRatio || 1));
+    if (!cv || !run || cssWidth <= 0) return;
+    const dpr = Math.min(Math.max(globalThis.devicePixelRatio || 1, 1), 3);
+    const width = Math.min(Math.round(cssWidth * dpr), 3000);
     if (cv.width !== width) {
       cv.width = width;
       cv.height = Math.round(width * (H + 2 * PAD) / (W + 2 * PAD));
     }
-    draw(cv, run, k, showDensity);
-  }, [run, k, showDensity]);
+    try {
+      draw(cv, run, k, showDensity, width / cssWidth);
+    } catch (err) {
+      console.error("No se pudo dibujar el cuadro", err);
+    }
+  }, [run, k, showDensity, cssWidth]);
   if (!run) return <div class="panel empty">Elige una corrida</div>;
-  const kk = Math.min(k, run.frames.length - 1), m = run.metrics;
+  const kk = Math.max(0, Math.min(k, run.frames.length - 1)), m = run.metrics;
   return (
     <div class="panel">
-      <canvas ref={ref} />
+      <div ref={box}>
+        <canvas ref={ref} />
+      </div>
       <dl class="stats">
         <div>
           <dt>Adentro</dt>
@@ -185,22 +204,27 @@ export default function Player() {
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    fetch("/data/index.json").then((r) => r.json()).then((list: string[]) => {
+    fetch("/data/index.json", { cache: "no-store" }).then((r) => r.json()).then((list: string[]) => {
       setNames(list);
       const base = list.find((x) => x.startsWith("base")) ?? list[0] ?? "";
       const pso = list.find((x) => x.startsWith("pso")) ?? "";
       setSel([base, pso]);
-    });
+    }).catch(() => setStatus("No se pudo leer la lista de corridas guardadas"));
   }, []);
 
   useEffect(() => {
     sel.filter((s) => s && !runs[s]).forEach((s) =>
-      fetch(`/data/${s}.json`).then((r) => r.json()).then((d: Run) => setRuns((old) => ({ ...old, [s]: d })))
+      fetch(`/data/${s}.json`, { cache: "no-store" }).then((r) => r.json())
+        .then((d: Run) => setRuns((old) => ({ ...old, [s]: d })))
+        .catch(() => setStatus(`No se pudo leer la corrida ${s}`))
     );
   }, [sel]);
 
   const shown = sel.map((s) => runs[s] ?? null);
   const total = Math.max(1, ...shown.filter(Boolean).map((r) => r!.frames.length));
+
+  const kRef = useRef(0);
+  kRef.current = k;
 
   useEffect(() => {
     if (!playing) return;
@@ -210,12 +234,22 @@ export default function Player() {
       last = now;
       const step = Math.floor(acc);
       acc -= step;
-      if (step) setK((x) => (x + step >= total ? (setPlaying(false), total - 1) : x + step));
+      if (step) {
+        const next = Math.min(kRef.current + step, total - 1);
+        kRef.current = next;
+        setK(next);
+        if (next >= total - 1) return setPlaying(false);
+      }
       id = requestAnimationFrame(tick);
     };
     id = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(id);
   }, [playing, speed, total]);
+
+  function togglePlay() {
+    if (!playing && k >= total - 1) setK(0);
+    setPlaying(!playing);
+  }
 
   async function newRun() {
     setStatus("Simulando...");
@@ -234,7 +268,7 @@ export default function Player() {
   return (
     <section>
       <div class="controls">
-        <button type="button" onClick={() => setPlaying(!playing)}>{playing ? "Pausa" : "Reproducir"}</button>
+        <button type="button" onClick={togglePlay}>{playing ? "Pausa" : "Reproducir"}</button>
         <button type="button" onClick={() => (setK(0), setPlaying(false))}>Reiniciar</button>
         <label>
           Velocidad
@@ -251,7 +285,7 @@ export default function Player() {
           min="0"
           max={total - 1}
           value={k}
-          onInput={(e) => setK(Number(e.currentTarget.value))}
+          onInput={(e) => setK(Math.min(Number(e.currentTarget.value), total - 1))}
         />
         <span class="time">t = {(k * 0.5).toFixed(1)} s</span>
       </div>

@@ -121,6 +121,20 @@ deno task dev
 
 Luego se abre http://localhost:5173.
 
+Versión compilada, más rápida y sin recarga automática (también desde `web/`):
+
+```bash
+deno task build
+```
+
+```bash
+deno task start
+```
+
+Luego se abre http://localhost:8000. La versión compilada copia los datos al compilar, así que después de volver a correr `run_all.py` hay que repetir `deno task build`.
+
+Si el visor queda en blanco o no avanza después de regenerar los resultados, se detiene el servidor con Ctrl+C, se vuelve a iniciar y se recarga la página con Ctrl+Shift+R.
+
 Una corrida suelta para el visor:
 
 ```bash
