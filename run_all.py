@@ -5,9 +5,10 @@ from src.model.geometry import Venue
 from src.model.grid import Grid
 from src.optimizer.objective import feasibility_study, save_bounds
 from src.optimizer.pso import benchmark
+from src.simulation.calibration import calibrate
 from src.simulation.checks import summary as verification
 from src.visualization import export_web
-from src.visualization.figures import plot_snapshots, plot_venue
+from src.visualization.figures import plot_calibration, plot_snapshots, plot_venue
 from src.visualization.tables import model_parameters
 
 
@@ -22,6 +23,8 @@ def main():
     benchmark()
     save_bounds(venue)
     feasibility_study(venue, grid, n=200 if args.quick else 1000)
+    calibrate(seeds=(1, 2) if args.quick else (1, 2, 3, 4, 5))
+    plot_calibration()
     model_parameters()
     verification()
     plot_snapshots()

@@ -77,5 +77,28 @@ def plot_snapshots(layout=None, n=500, seed=1001, times=(0, 20, 45, 150), name="
     return FIG_DIR / name
 
 
+def plot_calibration(name="fig_calibracion.png"):
+    import json
+    c = json.loads(P.CALIBRATION.read_text())
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 4))
+    a1.plot(c["widths"], c["real"], "o", color="k", label="Jülich 2006 (medido)")
+    a1.errorbar(c["widths"], c["model_mean"], yerr=c["model_sd"], fmt="s--", color="#d95f02", capsize=3,
+                label=f"Modelo, $\\tau$ = {c['tau']} s (media y 1 desv.)")
+    a1.set_xlabel("Ancho del cuello de botella b (m)")
+    a1.set_ylabel("Flujo específico Js (personas/(m s))")
+    a1.set_title("Flujo específico real y simulado")
+    a1.set_ylim(1.0, 2.8)
+    a1.legend(fontsize=8)
+    a2.plot(c["taus"], c["mae_by_tau"], "o-", color="#2c7bb6")
+    a2.axvline(c["tau"], ls=":", color="k")
+    a2.set_xlabel("Tiempo de relajación $\\tau$ (s)")
+    a2.set_ylabel("MAE (personas/(m s))")
+    a2.set_title(f"Error absoluto medio, mínimo {c['mae']:.3f} en $\\tau$ = {c['tau']} s")
+    fig.tight_layout()
+    fig.savefig(FIG_DIR / name)
+    plt.close(fig)
+    return FIG_DIR / name
+
+
 if __name__ == "__main__":
     print(plot_venue(), plot_snapshots())

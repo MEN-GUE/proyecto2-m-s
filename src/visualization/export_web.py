@@ -27,7 +27,7 @@ def export(name="base", n=P.N_AGENTS, seed=1001, service_mean=P.SERVICE_MEAN, ta
     layout = load_layout(name)
     scene = build_scene(venue, grid, layout)
     agents = make_agents(scene, n, service_mean, seed)
-    res = simulate(scene, agents, P.TAU if tau is None else tau, record=True)
+    res = simulate(scene, agents, tau, record=True)
     m = metrics(res, n)
     frames = np.where(res["frames"] > -100, np.round(res["frames"] * 10), -1).astype(int)
     r2 = lambda a: np.round(np.asarray(a, float), 2).tolist()

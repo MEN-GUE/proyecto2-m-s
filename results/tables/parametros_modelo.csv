@@ -4,7 +4,7 @@ Masa,$m$,80.0,kg,Helbing et al. (2000)
 Radio,$R_\alpha$,"U(0.25, 0.3)",m,Helbing et al. (2000)
 Rapidez deseada,$v^0_\alpha$,"N(1.34, 0.26) en [0.82, 1.86]",m/s,Helbing y Molnár (1995)
 Rapidez máxima,,1.3 $v^0_\alpha$,m/s,Helbing y Molnár (1995)
-Tiempo de relajación,$\tau$,0.5,s,Se calibra con Jülich
+Tiempo de relajación,$\tau$,0.5,s,Calibrado con Jülich (Sección 4)
 Repulsión entre personas,"$A_p$, $B_p$","2000, 0.08","N, m",Helbing et al. (2000)
 Repulsión de muros,"$A_w$, $B_w$","2000, 0.08","N, m",Helbing et al. (2000)
 Probabilidad de compra,$p$,0.35,,Enunciado

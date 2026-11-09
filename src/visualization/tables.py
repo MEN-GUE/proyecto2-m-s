@@ -31,7 +31,7 @@ def model_parameters():
         ["Rapidez deseada", "$v^0_\\alpha$", f"N({P.V0_MEAN}, {P.V0_SD}) en [{P.V0_MIN:.2f}, {P.V0_MAX:.2f}]", "m/s",
          "Helbing y Molnár (1995)"],
         ["Rapidez máxima", "", f"{P.V_CAP} $v^0_\\alpha$", "m/s", "Helbing y Molnár (1995)"],
-        ["Tiempo de relajación", "$\\tau$", P.TAU, "s", "Se calibra con Jülich"],
+        ["Tiempo de relajación", "$\\tau$", P.TAU, "s", "Calibrado con Jülich (Sección 4)"],
         ["Repulsión entre personas", "$A_p$, $B_p$", f"{P.A_P:.0f}, {P.B_P}", "N, m", "Helbing et al. (2000)"],
         ["Repulsión de muros", "$A_w$, $B_w$", f"{P.A_W:.0f}, {P.B_W}", "N, m", "Helbing et al. (2000)"],
         ["Probabilidad de compra", "$p$", P.P_BUY, "", "Enunciado"],

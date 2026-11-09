@@ -76,6 +76,7 @@ Luego se abre http://localhost:5173.
 | Ventana de 80 x 50 m, posición de portones | Estimación | Elegidas por el autor sobre el polígono real |
 | Tamaño de barras y vallas | Estimación | Medidas típicas de mobiliario de eventos |
 | Distribución inicial del público y compras | Sintético | Generado con semillas fijas |
+| Trayectorias del experimento "Bottleneck, Caserne" (2006) | Real, público | Archivo de datos de Jülich, DOI 10.34735/ped.2006.2, licencia CC BY 4.0. Se descargan solas en `data/julich/raw/`; el resumen de flujos queda en `data/julich/julich_flows.csv` |
 
 En OSM no existe un elemento llamado "Explanada Cayalá". Se usa el lote abierto más grande junto a Cardales de Cayalá, que coincide con la "Explanada Cardales" mencionada por Prensa Libre para los conciertos de noviembre de 2022. Esta identificación es una suposición del autor.
 

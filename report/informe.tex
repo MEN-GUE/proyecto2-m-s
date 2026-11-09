@@ -317,6 +317,38 @@ Se automatizaron tres pruebas (\texttt{tests/test\_verification.py}):
 \input{../results/tables/verificacion.tex}
 \end{table}
 
+\section{Calibración con datos reales de Jülich}
+
+Antes de optimizar, el modelo base se ajustó con mediciones reales de personas pasando por un cuello de botella. Solo se calibró el tiempo de relajación $\tau$; las demás constantes se tomaron de la literatura.
+
+\subsection{Datos de referencia}
+Se usaron las trayectorias del experimento ``Bottleneck, Caserne'' del Forschungszentrum Jülich \citep{julich2006}. Las mediciones se hicieron el 30 de noviembre de 2006 en la Bergische Kaserne de Düsseldorf, con soldados como participantes. Se tomaron las 10 corridas en las que solo cambia el ancho del cuello de botella, de 0.9 a 2.5 m, con largo de 4 m, pasillo previo de 7 m de ancho y entre 170 y 179 personas por corrida. Las posiciones se registraron con cámaras a 25 cuadros por segundo. Los datos son públicos (licencia CC BY 4.0) y se descargaron el 8 de noviembre de 2026. Son datos reales observados, no generados por este proyecto.
+
+Para cada corrida se buscó el instante en que cada persona cruza la entrada del cuello de botella. El flujo estable es $J = (150 - 20)/(t_{150} - t_{20})$, donde $t_k$ es el cruce de la persona número $k$. Así se dejan fuera el arranque y el final, cuando el flujo no es estable. El flujo específico es $J_s = J/b$, en personas por metro y por segundo. Los valores reales van de 1.75 a 2.11, con promedio cercano a 1.9, igual a lo que reportan \citet{liddle2009} y \citet{seyfried2009}.
+
+\subsection{Procedimiento}
+Se simuló la misma geometría con el mismo número de personas para cada ancho. Las personas parten a 4 m del cuello de botella con una densidad de 2 personas por m$^2$. La densidad inicial real no está en los metadatos, así que este valor es una suposición. En la simulación el flujo se mide a la salida del pasillo de 4 m: en estado estable pasa por ahí el mismo flujo que por la entrada, y la cámara real no cubre bien la salida. Se probaron valores de $\tau$ de 0.30 a 1.00 s cada 0.05 s, con 5 semillas por ancho (750 simulaciones). Para cada $\tau$ se calculó el error absoluto medio (MAE) entre el flujo específico simulado promedio y el real, sobre los 10 anchos.
+
+\subsection{Resultado}
+El menor error se obtiene con $\tau = 0.50$ s: MAE de 0.170 personas/(m s), que equivale a un error relativo medio del 9\,\% (Figura~\ref{fig:calibracion} y Tabla~\ref{tab:calibracion}). Ese valor coincide con el que usan \citet{helbing2000}, así que el modelo base no cambia.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_calibracion.png}
+\caption{Izquierda: flujo específico medido en Jülich y simulado con $\tau = 0.5$ s según el ancho del cuello de botella. Derecha: error absoluto medio para cada valor de $\tau$.}
+\label{fig:calibracion}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Flujo específico real y simulado por ancho, con $\tau = 0.5$ s (5 semillas).}
+\label{tab:calibracion}
+\input{../results/tables/calibracion_anchos.tex}
+\end{table}
+
+\subsection{Qué tan bien corresponde}
+El modelo acierta el nivel promedio del flujo, pero no su forma. En los datos reales el flujo por metro es casi el mismo para todos los anchos. En el modelo crece con el ancho: en puertas de 0.9 y 1.0 m se queda corto por unos 0.25, y en puertas de 2.0 m o más se pasa hasta por 0.39. Los portones del recinto miden 4 m, fuera del rango medido. Si la tendencia sigue, el modelo podría sobreestimar la capacidad de los portones, y los tiempos de salida simulados serían algo optimistas. Además, los participantes de Jülich eran soldados jóvenes en un experimento de laboratorio. El público de un concierto nocturno puede caminar más lento y en grupos, lo que también bajaría el flujo real.
+
 \printbibliography[title={Referencias}]
 
 \end{document}

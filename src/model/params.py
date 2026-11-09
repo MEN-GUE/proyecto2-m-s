@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import numpy as np
 
 # Recinto (ventana de 80 x 50 m sobre el poligono real de OSM)
@@ -27,7 +30,8 @@ RADIUS_MIN, RADIUS_MAX = 0.25, 0.30
 
 # Fuerzas sociales (Helbing, Farkas y Vicsek 2000; Helbing y Molnar 1995)
 MASS = 80.0
-TAU = 0.5                        # se reemplaza por el valor calibrado con Julich
+CALIBRATION = Path(__file__).resolve().parents[2] / "results/calibracion.json"
+TAU = json.loads(CALIBRATION.read_text())["tau"] if CALIBRATION.exists() else 0.5   # calibrado con Julich
 A_P, B_P = 2000.0, 0.08
 A_W, B_W = 2000.0, 0.08
 V_CAP = 1.3                      # rapidez maxima = 1.3 v0

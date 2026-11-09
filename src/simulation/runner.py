@@ -91,7 +91,7 @@ def _nearest_pts(c, w):
     return a + t[:, None] * (b - a)
 
 
-def make_agents(scene, n, service_mean, seed):
+def make_agents(scene, n, service_mean, seed, box=P.SPAWN_BOX, min_dist=0.6):
     rng = [np.random.default_rng([seed, k]) for k in range(4)]
     v0 = rng[0].normal(P.V0_MEAN, P.V0_SD, 4 * n)
     v0 = v0[(v0 >= P.V0_MIN) & (v0 <= P.V0_MAX)][:n]
@@ -99,7 +99,7 @@ def make_agents(scene, n, service_mean, seed):
     buy = rng[1].random(n) < P.P_BUY
     mu, s = P.lognormal_params(service_mean)
     dur = rng[1].lognormal(mu, s, n)
-    pos = spawn(scene, n, rng[2])
+    pos = spawn(scene, n, rng[2], box, min_dist)
     line = np.full(n, -1)
     sp = scene["sp"]
     if len(sp):
@@ -116,7 +116,8 @@ def make_agents(scene, n, service_mean, seed):
     return {"pos": pos, "v0": v0, "rad": rad, "line": line, "dur": dur}
 
 
-def simulate(scene, agents, tau=P.TAU, record=False, t_max=P.T_MAX):
+def simulate(scene, agents, tau=None, record=False, t_max=P.T_MAX):
+    tau = P.TAU if tau is None else tau
     prm = np.zeros(13)
     prm[[engine.TAU, engine.A, engine.B, engine.AW, engine.BW, engine.MASS, engine.DT, engine.TMAX,
          engine.VCAP, engine.SIGMA, engine.SAMPLE, engine.SPACING, engine.MARGIN]] = [
@@ -149,7 +150,7 @@ def metrics(res, n, gate_width=P.GATE_WIDTH, window=10.0):
             "left_unserved": int((res["exit_state"] == 0).sum())}
 
 
-def run(layout, n=P.N_AGENTS, service_mean=P.SERVICE_MEAN, seed=1001, tau=P.TAU, record=False, scene=None):
+def run(layout, n=P.N_AGENTS, service_mean=P.SERVICE_MEAN, seed=1001, tau=None, record=False, scene=None):
     if scene is None:
         venue, grid = context()
         scene = build_scene(venue, grid, layout)
