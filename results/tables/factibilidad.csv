@@ -1,9 +1,9 @@
 Indicador,Valor
 Montajes al azar evaluados,1000
-Montajes válidos (%),3.4
+Montajes válidos (%),3.3
 Con violación de fuera del recinto (%),73.1
-Con violación de traslape o paso angosto (%),27.6
-Con violación de radio libre de salida (%),53.0
+Con violación de traslape o paso angosto (%),27.7
+Con violación de radio libre de salida (%),52.9
 Con violación de zona de fila (%),93.2
-Con violación de área sin salida (%),3.2
+Con violación de área sin salida (%),3.0
 Iteración en que PSO halla un montaje válido,1

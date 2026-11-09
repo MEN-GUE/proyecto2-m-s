@@ -9,6 +9,8 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
 \usepackage[spanish=mexican]{csquotes}
@@ -174,7 +176,7 @@ Antes de simular, cada montaje pasa por un validador escrito para este proyecto.
 \end{enumerate}
 Cada regla incumplida suma a la penalización $P_{\text{geom}}$ el área en metros cuadrados donde ocurre. Un montaje es válido solo si $P_{\text{geom}} = 0$. Si no lo es, no se simula y recibe $J = 2 + \lambda_{\text{geom}} P_{\text{geom}}$, que siempre es peor que cualquier montaje válido. Así el enjambre sabe cuánto se equivocó y hacia dónde corregir.
 
-La Tabla~\ref{tab:factibilidad} muestra que solo el 3.4\,\% de los montajes tomados al azar cumplen todas las reglas. La regla que más falla es la de la zona de fila. La zona válida es pequeña y está partida en pedazos, por lo que en la búsqueda real el enjambre arranca con partículas válidas.
+La Tabla~\ref{tab:factibilidad} muestra que solo el 3.3\,\% de los montajes tomados al azar cumplen todas las reglas. La regla que más falla es la de la zona de fila. La zona válida es pequeña y está partida en pedazos, por lo que en la búsqueda real el enjambre arranca con partículas válidas.
 
 \begin{table}[H]
 \centering
@@ -186,7 +188,7 @@ La Tabla~\ref{tab:factibilidad} muestra que solo el 3.4\,\% de los montajes toma
 \subsection{Por qué PSO y no otra técnica}
 La función que se quiere minimizar sale de una simulación con azar, colas y eventos discretos. No tiene derivadas y cambia un poco entre semillas, así que los métodos basados en gradiente no sirven. Entre los métodos que no usan derivadas, se eligió PSO por tres razones:
 \begin{itemize}
-\item Cada partícula se mueve de forma continua, así que un montaje cambia poco a poco y conserva su sentido geométrico. En un algoritmo genético el cruce mezcla coordenadas de montajes distintos y suele producir barras encimadas, lo que aquí es grave porque solo el 3.4\,\% del espacio es válido.
+\item Cada partícula se mueve de forma continua, así que un montaje cambia poco a poco y conserva su sentido geométrico. En un algoritmo genético el cruce mezcla coordenadas de montajes distintos y suele producir barras encimadas, lo que aquí es grave porque solo el 3.3\,\% del espacio es válido.
 \item Tiene pocos parámetros y valores recomendados en la literatura.
 \item Las 12 partículas de una iteración se evalúan al mismo tiempo en varios núcleos.
 \end{itemize}
@@ -210,6 +212,110 @@ Para medir el estancamiento se guardan por iteración el mejor valor, el promedi
 
 \subsection{Qué se programó y qué se tomó de bibliotecas}
 El PSO, la regla de paro, el manejo del ángulo, el validador (prueba de punto en polígono, distancias a segmentos, penalizaciones) y el algoritmo de Dijkstra se programaron en este proyecto. NumPy solo se usa para operar con arreglos y generar números aleatorios. Numba compila el algoritmo de Dijkstra a código de máquina \citep{lam2015,numbadocs}. La biblioteca shapely solo se usa una vez, en la Parte 1, para recortar el polígono de OpenStreetMap a la ventana de estudio.
+
+\section{Modelo y simulación}
+
+\subsection{Diagrama del sistema}
+La Figura~\ref{fig:diagrama} muestra cómo se conectan las partes. El montaje (barras y vallas) pasa primero por el validador. Si es válido, se arma la escena: muros, puntos de atención y mapas de distancia que indican a cada persona por dónde caminar. El motor mueve a todas las personas paso a paso y atiende las filas. Al final se calculan las métricas, que el PSO usa para proponer un nuevo montaje.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.8cm and 0.7cm, box/.style={draw, rounded corners, align=center, minimum height=1.2cm, text width=2.1cm, font=\small}, >={Stealth}]
+\node[box] (lay) {Montaje\\(barras y vallas)};
+\node[box, right=of lay] (val) {Validador\\geométrico};
+\node[box, right=of val] (esc) {Escena: muros y mapas de distancia};
+\node[box, right=of esc] (mot) {Motor: fuerzas sociales y filas};
+\node[box, right=of mot] (met) {Métricas:\\$D_{\max}$, $T_{95}$};
+\node[box, above=of lay] (osm) {Polígono real de OSM};
+\node[box, above=of mot] (dem) {Demanda y azar (semilla)};
+\node[box, below=of val] (pso) {PSO};
+\draw[->] (osm) -- (lay);
+\draw[->] (lay) -- (val);
+\draw[->] (val) -- node[above, font=\tiny] {válido} (esc);
+\draw[->] (esc) -- (mot);
+\draw[->] (dem) -- (mot);
+\draw[->] (mot) -- (met);
+\draw[->] (val) -- node[right, font=\scriptsize] {inválido} (pso);
+\draw[->] (met.south) |- node[pos=0.75, below, font=\scriptsize] {$J$} (pso.east);
+\draw[->] (pso.west) -| node[pos=0.25, below, font=\scriptsize] {nuevo montaje} (lay.south);
+\end{tikzpicture}
+\caption{Componentes del sistema y su relación.}
+\label{fig:diagrama}
+\end{figure}
+
+\subsection{Variables de estado}
+Cada persona $\alpha$ tiene posición $r_\alpha$ (m), velocidad $v_\alpha$ (m/s), rapidez deseada $v^0_\alpha$ (m/s), radio $R_\alpha$ (m) y un estado: va a una fila, está en la fila o siendo atendida, va a la salida, o ya salió. Los compradores tienen además una fila asignada y un tiempo de atención (s). Cada uno de los 12 puntos de atención guarda su fila en orden de llegada y la hora en que termina la atención en curso. El tiempo $t$ avanza en pasos de $\Delta t = 0.05$ s.
+
+\subsection{Ecuación de movimiento}
+El movimiento sigue el modelo de fuerzas sociales \citep{helbing1995,helbing2000}:
+\begin{equation}
+m_\alpha \frac{dv_\alpha}{dt} = m_\alpha \frac{v_\alpha^0 e_\alpha^0(t) - v_\alpha(t)}{\tau} + \sum_{\beta \neq \alpha} A_p\, e^{(R_{\alpha\beta} - d_{\alpha\beta})/B_p}\, n_{\alpha\beta} + \sum_{W} A_w\, e^{(R_\alpha - d_{\alpha W})/B_w}\, n_{\alpha W}
+\end{equation}
+El primer término empuja a cada persona hacia la velocidad que quiere llevar: rapidez $v^0_\alpha$ en la dirección $e^0_\alpha$. El parámetro $\tau$ dice qué tan rápido corrige su velocidad. El segundo término la aleja de las demás personas: $d_{\alpha\beta}$ es la distancia entre centros, $R_{\alpha\beta} = R_\alpha + R_\beta$ y $n_{\alpha\beta}$ es el vector unitario que apunta de $\beta$ hacia $\alpha$. El tercero la aleja de muros, barras y vallas con la misma forma.
+
+La ecuación se resuelve con Euler semi implícito. El término de corrección se evalúa con la velocidad nueva, lo que evita oscilaciones aunque $\Delta t$ sea grande:
+\begin{equation}
+v^{n+1}_\alpha = \frac{v^n_\alpha + \Delta t \left(v^0_\alpha e^0_\alpha / \tau + F^n_\alpha / m_\alpha\right)}{1 + \Delta t/\tau}, \qquad r^{n+1}_\alpha = r^n_\alpha + \Delta t\, v^{n+1}_\alpha
+\end{equation}
+donde $F^n_\alpha$ es la suma de las repulsiones. La rapidez se limita a $1.3\, v^0_\alpha$ \citep{helbing1995}.
+
+El modelo completo de \citet{helbing2000} agrega fuerzas de contacto físico con constantes muy grandes. Con $\Delta t = 0.05$ s esas fuerzas vuelven inestable el cálculo, y además describen empujones de pánico, que quedan fuera del estudio. Por eso se usa solo la ecuación de arriba. La consecuencia es que el modelo no representa bien multitudes apretadas por encima de unas 4 o 5 personas por m$^2$ (ver la Sección de límites).
+
+\subsection{Hacia dónde camina cada persona}
+Si la dirección deseada apuntara en línea recta al objetivo, las personas se quedarían atoradas detrás de barras y vallas. Por eso, para cada escena se calculan mapas de distancia con el algoritmo de Dijkstra sobre celdas de 0.25 m: uno hacia los portones y uno hacia la zona de fila de cada barra. Las celdas cerca de muros cuestan más, así que las rutas guardan algo de distancia de las paredes. La dirección $e^0_\alpha$ es la de mayor descenso del mapa en la celda donde está la persona. Cuando un comprador está a menos de 2.5 m de su lugar en la fila, camina directo hacia ese lugar.
+
+\subsection{Reglas}
+\begin{enumerate}
+\item \textbf{Al inicio} se sortean para cada persona su rapidez deseada, su radio, si compra y su tiempo de atención. Todas aparecen en la franja norte del recinto, separadas al menos 0.6 m. Los compradores, en orden aleatorio, eligen la barra con menos personas asignadas (si empatan, la más cercana) y dentro de ella el punto de atención con menos gente. Hacer la elección en orden y actualizando los conteos evita que todos escojan la misma barra cuando al inicio todas están vacías.
+\item \textbf{Filas}: un comprador entra a su fila al llegar a menos de 1 m del último lugar. Los lugares están separados 0.8 m hacia el este del punto de atención. Cuando el primero de la fila llega al punto de atención y este está libre, empieza su atención. Al terminarla, la persona cambia su objetivo al portón más cercano y la fila avanza.
+\item \textbf{Movimiento}: en cada paso se calculan las fuerzas usando una grilla de vecinos de 2 por 2 m, de modo que cada persona solo revisa a quienes están en su celda y en las 8 vecinas.
+\item \textbf{Salida}: una persona sale cuando cruza un portón y está 0.3 m afuera. Si la multitud arrastra fuera a un comprador que aún no entraba a su fila, se cuenta como evacuado y se registra como ``salió sin comprar''.
+\item \textbf{Registro}: cada 0.5 s se calcula la densidad con un kernel gaussiano de $\sigma = 0.7$ m sobre celdas de 0.5 m \citep{helbing2007}, solo en zonas transitables.
+\item \textbf{Paro}: cuando sale la última persona o a los 900 s.
+\end{enumerate}
+
+\subsection{Distribuciones}
+La rapidez deseada es normal con media 1.34 m/s y desviación 0.26 m/s, recortada a dos desviaciones. La decisión de compra es Bernoulli con $p = 0.35$. El tiempo de atención es Log-Normal con media 16.4 s y coeficiente de variación 0.5 (este último es una estimación). Para que la media sea 16.4 s y no la mediana, se usa $s^2 = \ln(1 + CV^2)$ y $\mu = \ln(16.4) - s^2/2$.
+
+\begin{table}[H]
+\centering
+\caption{Parámetros del modelo, unidades y procedencia.}
+\label{tab:parametros}
+\small
+\resizebox{\textwidth}{!}{\input{../results/tables/parametros_modelo.tex}}
+\end{table}
+
+\subsection{Métricas}
+$D_{\max}$ es el valor más alto del mapa de densidad en todo el recorrido. $T_{95}$ es el tiempo en que sale la persona número $\lceil 0.95 N \rceil$. Además se registran el flujo pico por portón (personas que cruzan en 10 s, divididas entre 10 s y 4 m) y cuántos compradores salieron sin comprar.
+
+\subsection{Implementación y reproducibilidad}
+No hay una clase por persona: todo el estado vive en arreglos de NumPy y el ciclo principal se compila con Numba \citep{lam2015}. Con la grilla de vecinos y una lista de muros cercanos por celda, el costo de cada paso crece de forma lineal con el número de personas. Una evacuación completa con 500 personas tarda cerca de 0.8 s en un solo núcleo.
+
+Todo el azar se sortea antes de empezar, con un generador separado para cada parte (rapidez y radio, compras y atención, posición inicial, orden de elección). Así, con la misma semilla las mismas personas participan en cualquier montaje, lo que hace más justa la comparación entre montajes. El código está en cuatro paquetes: \texttt{model} (geometría, parámetros, validador), \texttt{simulation} (motor y corridas), \texttt{optimizer} (PSO) y \texttt{visualization} (figuras, tablas y web). Todo se reproduce desde un entorno limpio con los pasos del README.
+
+La Figura~\ref{fig:instantaneas} muestra una corrida del montaje base. A los 20 s el flujo que va al portón oeste pasa justo frente a las filas de las barras, que es el conflicto que se busca resolver. A los 45 s casi todos los que no compran ya salieron y quedan las filas, que se vacían lentamente.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_instantaneas.png}
+\caption{Cuatro momentos de una corrida del montaje base con 500 personas.}
+\label{fig:instantaneas}
+\end{figure}
+
+\subsection{Verificación}
+Se automatizaron tres pruebas (\texttt{tests/test\_verification.py}):
+\begin{enumerate}
+\item \textbf{Conservación}: en cada registro se cumple $N_{\text{adentro}} + N_{\text{evacuados}} = N$ y al final salen todos.
+\item \textbf{Muros}: con el montaje base y con uno que incluye vallas, ningún paso de ninguna persona cruza un muro, ninguna posición queda fuera del recinto y la distancia mínima a un muro nunca es menor que el radio de las personas.
+\item \textbf{Flujo libre}: una persona sola, que parte del reposo en un pasillo amplio, debe tardar lo que da la solución exacta sin repulsiones, $x(t) = v^0 t - v^0 \tau (1 - e^{-t/\tau})$.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Resultados de las pruebas de verificación.}
+\label{tab:verificacion}
+\input{../results/tables/verificacion.tex}
+\end{table}
 
 \printbibliography[title={Referencias}]
 

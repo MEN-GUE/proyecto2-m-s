@@ -6,8 +6,7 @@ from numba import njit
 from . import params as P
 
 H = 0.25
-X0, Y0 = -2.0, -2.0
-NX, NY = int((P.WIDTH + 4) / H), int((P.HEIGHT + 4) / H)
+PAD = 2.0
 POCKET = 1.5
 
 
@@ -35,14 +34,14 @@ def box_distance(x, y, cx, cy, hw, hh):
 
 
 @njit(cache=True)
-def dijkstra(free, sources, h):
-    nx, ny = free.shape
+def dijkstra(cost, sources, h):
+    nx, ny = cost.shape
     dist = np.full((nx, ny), np.inf)
     heap = [(0.0, 0, 0)]
     heap.pop()
     for i in range(nx):
         for j in range(ny):
-            if sources[i, j] and free[i, j]:
+            if sources[i, j] and cost[i, j] < np.inf:
                 dist[i, j] = 0.0
                 heap.append((0.0, i, j))
     heapq.heapify(heap)
@@ -53,12 +52,12 @@ def dijkstra(free, sources, h):
         for di in range(-1, 2):
             for dj in range(-1, 2):
                 a, b = i + di, j + dj
-                if (di == 0 and dj == 0) or a < 0 or b < 0 or a >= nx or b >= ny or not free[a, b]:
+                if (di == 0 and dj == 0) or a < 0 or b < 0 or a >= nx or b >= ny or cost[a, b] == np.inf:
                     continue
                 diag = di != 0 and dj != 0
-                if diag and not (free[a, j] and free[i, b]):
+                if diag and (cost[a, j] == np.inf or cost[i, b] == np.inf):
                     continue
-                nd = d + h * (1.4142135623730951 if diag else 1.0)
+                nd = d + h * cost[a, b] * (1.4142135623730951 if diag else 1.0)
                 if nd < dist[a, b]:
                     dist[a, b] = nd
                     heapq.heappush(heap, (nd, a, b))
@@ -67,8 +66,10 @@ def dijkstra(free, sources, h):
 
 class Grid:
     def __init__(self, venue):
-        xs = X0 + H * (np.arange(NX) + 0.5)
-        ys = Y0 + H * (np.arange(NY) + 0.5)
+        bx0, by0, bx1, by1 = venue.domain.bounds
+        self.x0, self.y0 = bx0 - PAD, by0 - PAD
+        xs = self.x0 + H * (np.arange(int((bx1 - bx0 + 2 * PAD) / H)) + 0.5)
+        ys = self.y0 + H * (np.arange(int((by1 - by0 + 2 * PAD) / H)) + 0.5)
         self.x, self.y = np.meshgrid(xs, ys, indexing="ij")
         self.domain = inside_polygon(self.x, self.y, np.array(venue.domain.exterior.coords))
         self.wall_d = seg_distance(self.x, self.y, venue.walls)
@@ -99,4 +100,4 @@ class Grid:
         return ok
 
     def distance_to_exit(self, free):
-        return dijkstra(free, self.source, H)
+        return dijkstra(np.where(free, 1.0, np.inf), self.source, H)

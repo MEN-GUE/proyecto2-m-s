@@ -1,0 +1,15 @@
+Parámetro,Símbolo,Valor,Unidad,Fuente
+Paso de tiempo,$\Delta t$,0.05,s,Enunciado
+Masa,$m$,80.0,kg,Helbing et al. (2000)
+Radio,$R_\alpha$,"U(0.25, 0.3)",m,Helbing et al. (2000)
+Rapidez deseada,$v^0_\alpha$,"N(1.34, 0.26) en [0.82, 1.86]",m/s,Helbing y Molnár (1995)
+Rapidez máxima,,1.3 $v^0_\alpha$,m/s,Helbing y Molnár (1995)
+Tiempo de relajación,$\tau$,0.5,s,Se calibra con Jülich
+Repulsión entre personas,"$A_p$, $B_p$","2000, 0.08","N, m",Helbing et al. (2000)
+Repulsión de muros,"$A_w$, $B_w$","2000, 0.08","N, m",Helbing et al. (2000)
+Probabilidad de compra,$p$,0.35,,Enunciado
+"Atención (media, CV)",,"LogNormal(16.4, 0.5)",s,Enunciado; CV estimado
+Puntos de atención por barra,,3,,Estimación
+Separación en fila,,0.8,m,"Reposo con $A_p$, $B_p$"
+Kernel de densidad,$\sigma$,0.7,m,Helbing et al. (2007)
+Celda de densidad,,0.5,m,Elección

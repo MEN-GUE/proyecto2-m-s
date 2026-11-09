@@ -18,3 +18,4 @@ report/*.synctex.gz
 report/informe.pdf
 report/*.bcf
 report/*.run.xml
+.claude/

@@ -38,11 +38,35 @@ python -m venv .venv
 .venv/bin/python run_all.py
 ```
 
-Pruebas automáticas:
+Pruebas automáticas (conservación de personas, cruce de muros, tiempo en flujo libre, PSO y validador):
 
 ```bash
 .venv/bin/python -m pytest -q
 ```
+
+Una corrida suelta exportada para la web:
+
+```bash
+.venv/bin/python -m src.visualization.export_web --layout base --n 500 --seed 1001
+```
+
+## Visor web
+
+El visor está hecho con Deno Fresh. Reproduce las corridas guardadas en `web/static/data/` y el botón "Simular" lanza una corrida nueva con el Python de `.venv` (se puede cambiar con la variable `PYTHON`).
+
+```bash
+cd web
+```
+
+```bash
+deno install
+```
+
+```bash
+deno task dev
+```
+
+Luego se abre http://localhost:5173.
 
 ## Datos
 
