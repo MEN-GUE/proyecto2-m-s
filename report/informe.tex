@@ -392,7 +392,7 @@ El montaje ganador (Figura~\ref{fig:layouts}) saca las barras del borde oeste: t
 \end{figure}
 
 \subsection{Verificación de restricciones}
-La Tabla~\ref{tab:restricciones} muestra la comprobación por código para la base y el montaje PSO. Ninguno saca muebles del recinto, deja pasos angostos, invade el radio de 5 m de los portones, tapa la zona de fila ni deja áreas sin salida. En las 10 corridas de selección, el mapa de densidad suavizado nunca pasa de 4 personas por m$^2$ en ninguna celda transitable. El valor más alto fue 2.32 en la base y 2.20 con el PSO. Con 500 personas en esta zona, el límite de 4 no llega a estar en juego.
+La Tabla~\ref{tab:restricciones} muestra la comprobación por código para la base y el montaje PSO. Ninguno saca muebles del recinto, deja pasos angostos, invade el radio de 5 m de los portones, tapa la zona de fila ni deja áreas sin salida. En las 10 corridas de selección, el mapa de densidad suavizado nunca pasa de 4 personas por m$^2$ en ninguna celda transitable. El valor más alto fue 2.32 en la base y 2.20 con el PSO. Con 500 personas en esta zona, el límite de 4 no llega a estar en juego dentro del modelo; la Sección 7 muestra que el modelo subestima la densidad real, así que el margen verdadero es menor.
 
 \begin{table}[H]
 \centering
@@ -502,11 +502,72 @@ En resumen, el diseño PSO mantiene su ventaja en densidad en los tres escenario
 \subsection{Incertidumbre, límites y riesgo de extrapolar}
 \begin{itemize}
 \item \textbf{Incertidumbre estadística.} Los intervalos de la Tabla~\ref{tab:resumen} miden la variación entre réplicas del modelo, no el error del modelo frente a la realidad. El montaje ganador se eligió sin usar las semillas 1001 a 1030, así que estas comparaciones no están infladas por la búsqueda.
-\item \textbf{Validez del modelo.} El modelo no tiene fuerzas de contacto físico. Sin ellas, las personas guardan entre sí una distancia que limita la densidad a unas 2 a 3 personas por m$^2$ en condiciones normales. Por encima de 4 o 5 personas por m$^2$ aparecen en la realidad la compresión y los empujones en cadena \citep{helbing2007}, que este modelo no representa. Por eso la comprobación del límite de 4 solo tiene sentido mientras la densidad simulada esté lejos de ese valor, como aquí.
+\item \textbf{Validez del modelo.} El modelo no tiene fuerzas de contacto físico. Sin ellas, las personas guardan entre sí una distancia que limita la densidad a unas 2 a 3 personas por m$^2$ en condiciones normales. Por encima de 4 o 5 personas por m$^2$ aparecen en la realidad la compresión y los empujones en cadena \citep{helbing2007}, que este modelo no representa. Por eso la comprobación del límite de 4 solo tiene sentido mientras la densidad simulada esté lejos de ese valor. Además, frente a los datos de Jülich el modelo subestima la densidad pico en 34\,\% (Sección 7), lo que reduce el margen real.
 \item \textbf{Relación casi lineal.} Mientras las barras sean el cuello de botella, $T_{95}$ crece casi en proporción al tiempo de atención y al número de compradores. Esa relación deja de valer si los portones se saturan (con mucha más gente) o si la multitud se comprime; ahí el tiempo puede crecer mucho más rápido.
 \item \textbf{Extrapolación.} Se modelan 500 a 600 personas en una ventana de 80 por 50 m, cuando en un concierto real hay más de 15 mil en todo el recinto. El modelo se calibró con puertas de 0.9 a 2.5 m y personas jóvenes en laboratorio. Los resultados no deben usarse para emergencias, pánico, lluvia, otras posiciones de portones ni multitudes mucho más grandes sin calibrar de nuevo.
 \item \textbf{Supuestos sin dato real.} La posición de los portones, el tamaño de las barras, la variación del tiempo de atención, la regla de desistir a los 2 minutos y la posición inicial del público son estimaciones. Cambiarlas puede cambiar el resultado.
 \end{itemize}
+
+\section{Comparación con la vida real}
+
+\subsection{Fuentes de referencia}
+No existen mediciones públicas de flujos, densidades o tiempos de salida en la Explanada Cayalá. La nota de prensa solo da el aforo esperado. Por eso la comparación usa tres referencias de distinta naturaleza, que se separan con cuidado:
+\begin{itemize}
+\item \textbf{Datos reales medidos}: las trayectorias de Jülich descritas en la Sección 4 (2006, Düsseldorf, 10 corridas de 170 a 179 personas, 25 cuadros por segundo). Son observaciones de personas reales, pero en laboratorio y en una geometría distinta a la del recinto.
+\item \textbf{Norma}: NFPA 101 \citep{nfpa101}. Para componentes a nivel, como puertas y portones, exige 5 mm de ancho por persona (Tabla 7.3.3.1). En lugares de reunión con público de pie, la salida principal debe dar cabida a dos tercios del aforo (12.2.3.6). No es una medición sino un requisito de diseño. Como el texto de la norma no es de libre acceso, estas cifras se verificaron en guías de estudio y listas de revisión municipales que citan esas secciones.
+\item \textbf{Guía de ingeniería}: el modelo hidráulico del manual de la SFPE \citep{sfpe2016}. Con velocidad $S = 1.40\,(1 - 0.266\,D)$, el flujo máximo por metro de ancho efectivo es $1.40/(4 \times 0.266) = 1.32$ personas/(m s). Si a cada lado del portón se descuentan 0.15 m de ``capa límite'', un portón de 4 m deja pasar 1.22 personas/(m s) por metro nominal. Es un valor de diseño, conservador a propósito.
+\end{itemize}
+
+\subsection{Qué tan bien corresponde el modelo base}
+Antes de interpretar la mejora hay que ver qué tan cerca está el modelo base de la realidad. En el escenario de Jülich se puede medir lo mismo en los datos reales y en la simulación.
+\begin{itemize}
+\item \textbf{Flujo}: el modelo calibrado da en promedio 1.95 personas/(m s) contra 1.92 reales, un 1.5\,\% más, con un error absoluto medio de 0.17 entre anchos (Sección 4).
+\item \textbf{Densidad}: con el mismo kernel gaussiano y la misma zona frente a la puerta, la densidad pico real va de 4.1 a 5.3 personas/m$^2$ y la del modelo, de 2.8 a 3.1 (Tabla~\ref{tab:dens_julich} y Figura~\ref{fig:dens_julich}). El modelo la subestima en 34\,\% en promedio. La causa es la falta de fuerzas de contacto: las personas simuladas no se comprimen como las reales cuando empujan para pasar.
+\end{itemize}
+En resumen, el modelo predice bien cuánta gente pasa por segundo, pero se queda corto en qué tan apretada está la gente.
+
+\begin{table}[H]
+\centering
+\caption{Densidad pico frente a la entrada del cuello de botella, real y simulada (5 semillas), medida con kernel gaussiano de $\sigma = 0.7$ m en la zona de 4 por 1.5 m que cubre la cámara.}
+\label{tab:dens_julich}
+\input{../results/tables/densidad_julich.tex}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{fig_densidad_julich.png}
+\caption{Densidad pico frente a la puerta en los experimentos de Jülich y en el modelo calibrado.}
+\label{fig:dens_julich}
+\end{figure}
+
+\subsection{Tabla de correspondencia}
+La Tabla~\ref{tab:correspondencia} reúne, con las mismas unidades, la referencia, el modelo base y el modelo con PSO. El cambio porcentual se calcula respecto a la simulación base.
+
+\begin{table}[H]
+\centering
+\caption{Correspondencia entre referencia real o normativa, modelo base y modelo PSO (30 réplicas en Cayalá). ``Sin medición'' indica que no hay dato real público para ese recinto. En las filas de Jülich, ``Cambio'' es la diferencia del modelo respecto al dato real; en las de Cayalá, la del PSO respecto a la base.}
+\label{tab:correspondencia}
+\resizebox{\textwidth}{!}{\input{../results/tables/correspondencia.tex}}
+\end{table}
+
+\begin{itemize}
+\item \textbf{Flujo en los portones.} En el momento de mayor salida, el modelo base pasa 1.90 personas/(m s) por los portones, casi lo mismo que la capacidad medida en Jülich (1.92). Es decir, durante el pico los portones trabajan cerca de su capacidad real. El valor de diseño de la SFPE (1.22) es bastante más bajo porque está hecho para dejar margen. Con el PSO el flujo pico baja 2.9\,\%, de acuerdo con la menor densidad.
+\item \textbf{Densidad y tiempo.} No hay datos reales del recinto; solo se puede comparar base contra PSO dentro del modelo ($-3.8$\,\% en densidad y $-0.8$\,\% en $T_{95}$, este último sin diferencia significativa).
+\item \textbf{Norma.} Con 500 personas, NFPA 101 pide 2.5 m de salida en total y 1.67 m para la salida principal. El recinto ofrece 8 m y 4 m, así que cumple con amplio margen, también con 600 personas (3.0 y 2.0 m). Ninguno de los dos montajes cambia el ancho de los portones.
+\end{itemize}
+
+\subsection{Ajuste aproximado de la densidad}
+Si el modelo subestimara la densidad del recinto en la misma proporción que en Jülich (factor de 1.52, entre 1.41 y 1.72 según el ancho), los valores serían los de la Tabla~\ref{tab:dens_ajustada}. La densidad pico media pasaría de unas 2.1 a unas 3.2 personas/m$^2$: más cerca del límite de 4, aunque todavía por debajo. Con sobrecupo, el montaje base pasaría de 4 en una de 30 corridas, y el montaje PSO en ninguna. Este ajuste supone que el error del laboratorio se repite igual en el recinto, cosa que no está comprobada; sirve para dar una idea del margen, no como medición.
+
+\begin{table}[H]
+\centering
+\caption{Densidad pico del modelo y valor ajustado con el factor observado en Jülich (30 réplicas por condición).}
+\label{tab:dens_ajustada}
+\resizebox{\textwidth}{!}{\input{../results/tables/densidad_ajustada.tex}}
+\end{table}
+
+\subsection{Mejora simulada y mejora real}
+Todas las mejoras de este informe son mejoras simuladas. El montaje PSO no se instaló ni se midió en un concierto real, así que no se puede afirmar que la realidad cambiaría en esos porcentajes. Para comprobarlo haría falta montar la propuesta en un evento y medir. Por ejemplo, contar con video a las personas que cruzan los portones, estimar densidades con cámaras elevadas o drones y registrar los tiempos de atención reales de las terminales cashless. Esos mismos datos servirían también para calibrar la densidad, que es el punto más débil del modelo.
 
 \printbibliography[title={Referencias}]
 

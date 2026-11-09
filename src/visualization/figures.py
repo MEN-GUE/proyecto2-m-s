@@ -102,6 +102,25 @@ def plot_calibration(name="fig_calibracion.png"):
     return FIG_DIR / name
 
 
+def plot_density_check(name="fig_densidad_julich.png"):
+    rows = csv_rows("densidad_julich")
+    b = [float(r[0]) for r in rows]
+    fig, ax = plt.subplots(figsize=(7, 4))
+    ax.plot(b, [float(r[1]) for r in rows], "o", color="k", label="Jülich 2006 (medido)")
+    ax.errorbar(b, [float(r[2]) for r in rows], yerr=[float(r[3]) for r in rows], fmt="s--", color="#d95f02",
+                capsize=3, label="Modelo calibrado (media y 1 desv.)")
+    ax.axhline(P.DENS_LIMIT, color="#7570b3", ls=":", label="Límite seguro (4 p/m2)")
+    ax.set_xlabel("Ancho del cuello de botella b (m)")
+    ax.set_ylabel("Densidad pico frente a la puerta (personas/m2)")
+    ax.set_title("Densidad pico real y simulada con el mismo método de medición")
+    ax.set_ylim(0, 6)
+    ax.legend(fontsize=8, loc="lower left")
+    fig.tight_layout()
+    fig.savefig(FIG_DIR / name)
+    plt.close(fig)
+    return FIG_DIR / name
+
+
 def _pso_logs():
     import json
     logs = sorted((FIG_DIR.parent / "logs").glob("pso_reinicio_*.json"))

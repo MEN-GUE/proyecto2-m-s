@@ -11,11 +11,11 @@ def _fmt(x):
     return x if x.startswith("$") else x.replace("%", "\\%").replace("_", "\\_").replace("&", "\\&")
 
 
-def save(name, header, rows):
+def save(name, header, rows, align=None):
     TAB_DIR.mkdir(parents=True, exist_ok=True)
     with open(TAB_DIR / f"{name}.csv", "w", newline="") as fh:
         csv.writer(fh).writerows([header, *rows])
-    tex = ["\\begin{tabular}{" + "l" + "r" * (len(header) - 1) + "}", "\\toprule",
+    tex = ["\\begin{tabular}{" + (align or "l" + "r" * (len(header) - 1)) + "}", "\\toprule",
            " & ".join(map(_fmt, header)) + " \\\\", "\\midrule"]
     tex += [" & ".join(_fmt(x) for x in r) + " \\\\" for r in rows]
     tex += ["\\bottomrule", "\\end{tabular}"]
