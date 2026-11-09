@@ -18,8 +18,8 @@
 \addbibresource{referencias.bib}
 \graphicspath{{../results/figures/}}
 
-\newcommand{\autor}{Nombre del autor}
-\newcommand{\carne}{Carn\'e 00000}
+\newcommand{\autor}{Juan Fernando Men\'endez Guerra}
+\newcommand{\carne}{Carn\'e 17444}
 
 \begin{document}
 
@@ -38,6 +38,9 @@
 \vfill
 {\large Noviembre de 2026\par}
 \end{titlepage}
+
+\section*{Resumen}
+Al terminar un concierto en la Explanada Cayalá, cientos de personas salen al mismo tiempo y una parte pasa antes por las barras cashless. Este trabajo simula la zona sur de salida (80 por 50 m sobre el polígono real de OpenStreetMap) con un modelo de fuerzas sociales que incluye filas en 4 barras con 3 puntos de atención cada una. El modelo se calibró con trayectorias reales de Jülich (error de flujo del 9\,\%). Luego, un enjambre de partículas programado desde cero buscó la ubicación de las barras y de dos vallas que reduce la densidad pico y el tiempo en que sale el 95\,\% del público. Con 30 réplicas por condición, el montaje encontrado baja la densidad pico de 2.15 a 2.07 personas/m$^2$ ($-3.8$\,\%, intervalo del 95\,\% entre $-5.9$ y $-1.7$\,\%), pero no cambia el tiempo de salida ($-0.8$\,\%, no significativo). La ventaja en densidad se mantiene con 20\,\% más de público y con atención 50\,\% más lenta. En cambio, el tiempo de salida depende sobre todo de la velocidad de atención en las barras: crece 41\,\% cuando la atención es 50\,\% más lenta. El modelo reproduce bien el flujo real, pero subestima la densidad real en 34\,\%, así que los valores absolutos de densidad deben leerse con cautela. Todas las mejoras son simuladas.
 
 \tableofcontents
 \newpage
@@ -259,7 +262,7 @@ v^{n+1}_\alpha = \frac{v^n_\alpha + \Delta t \left(v^0_\alpha e^0_\alpha / \tau 
 \end{equation}
 donde $F^n_\alpha$ es la suma de las repulsiones. La rapidez se limita a $1.3\, v^0_\alpha$ \citep{helbing1995}.
 
-El modelo completo de \citet{helbing2000} agrega fuerzas de contacto físico con constantes muy grandes. Con $\Delta t = 0.05$ s esas fuerzas vuelven inestable el cálculo, y además describen empujones de pánico, que quedan fuera del estudio. Por eso se usa solo la ecuación de arriba. La consecuencia es que el modelo no representa bien multitudes apretadas por encima de unas 4 o 5 personas por m$^2$ (ver la Sección de límites).
+El modelo completo de \citet{helbing2000} agrega fuerzas de contacto físico con constantes muy grandes. Con $\Delta t = 0.05$ s esas fuerzas vuelven inestable el cálculo, y además describen empujones de pánico, que quedan fuera del estudio. Por eso se usa solo la ecuación de arriba. La consecuencia es que el modelo no representa bien multitudes apretadas por encima de unas 4 o 5 personas por m$^2$ (ver las Secciones~\ref{sec:limites} y \ref{sec:real}).
 
 \subsection{Hacia dónde camina cada persona}
 Si la dirección deseada apuntara en línea recta al objetivo, las personas se quedarían atoradas detrás de barras y vallas. Por eso, para cada escena se calculan mapas de distancia con el algoritmo de Dijkstra sobre celdas de 0.25 m: uno hacia los portones y uno hacia la zona de fila de cada barra. Las celdas cerca de muros cuestan más, así que las rutas guardan algo de distancia de las paredes. La dirección $e^0_\alpha$ es la de mayor descenso del mapa en la celda donde está la persona. Cuando un comprador está a menos de 2.5 m de su lugar en la fila, camina directo hacia ese lugar.
@@ -500,6 +503,7 @@ La Figura~\ref{fig:mapa} explica de dónde sale la mejora. En la base, quienes v
 En resumen, el diseño PSO mantiene su ventaja en densidad en los tres escenarios, pero no mejora el tiempo de salida en ninguno. Lo que más mueve el tiempo es la capacidad de atención de las barras, no su ubicación.
 
 \subsection{Incertidumbre, límites y riesgo de extrapolar}
+\label{sec:limites}
 \begin{itemize}
 \item \textbf{Incertidumbre estadística.} Los intervalos de la Tabla~\ref{tab:resumen} miden la variación entre réplicas del modelo, no el error del modelo frente a la realidad. El montaje ganador se eligió sin usar las semillas 1001 a 1030, así que estas comparaciones no están infladas por la búsqueda.
 \item \textbf{Validez del modelo.} El modelo no tiene fuerzas de contacto físico. Sin ellas, las personas guardan entre sí una distancia que limita la densidad a unas 2 a 3 personas por m$^2$ en condiciones normales. Por encima de 4 o 5 personas por m$^2$ aparecen en la realidad la compresión y los empujones en cadena \citep{helbing2007}, que este modelo no representa. Por eso la comprobación del límite de 4 solo tiene sentido mientras la densidad simulada esté lejos de ese valor. Además, frente a los datos de Jülich el modelo subestima la densidad pico en 34\,\% (Sección 7), lo que reduce el margen real.
@@ -509,6 +513,7 @@ En resumen, el diseño PSO mantiene su ventaja en densidad en los tres escenario
 \end{itemize}
 
 \section{Comparación con la vida real}
+\label{sec:real}
 
 \subsection{Fuentes de referencia}
 No existen mediciones públicas de flujos, densidades o tiempos de salida en la Explanada Cayalá. La nota de prensa solo da el aforo esperado. Por eso la comparación usa tres referencias de distinta naturaleza, que se separan con cuidado:
@@ -568,6 +573,63 @@ Si el modelo subestimara la densidad del recinto en la misma proporción que en 
 
 \subsection{Mejora simulada y mejora real}
 Todas las mejoras de este informe son mejoras simuladas. El montaje PSO no se instaló ni se midió en un concierto real, así que no se puede afirmar que la realidad cambiaría en esos porcentajes. Para comprobarlo haría falta montar la propuesta en un evento y medir. Por ejemplo, contar con video a las personas que cruzan los portones, estimar densidades con cámaras elevadas o drones y registrar los tiempos de atención reales de las terminales cashless. Esos mismos datos servirían también para calibrar la densidad, que es el punto más débil del modelo.
+
+\section{Resultados, discusión y conclusiones}
+
+\subsection{Respuesta a la pregunta de investigación}
+Con el montaje encontrado por el PSO, la densidad pico baja cerca de 4\,\% (de 2.148 a 2.067 personas/m$^2$; intervalo del 95\,\% para la reducción entre 1.7 y 5.9\,\%). El tiempo en que sale el 95\,\% del público no baja de forma medible: la diferencia es de $-0.8$\,\%, con intervalo entre $-2.0$ y $+0.5$\,\%.
+
+\subsection{Preguntas explícitas}
+\begin{description}
+\item[¿Qué mejoró?] La densidad pico, que era el objetivo con más peso. También bajó el flujo pico en los portones ($-2.9$\,\%) y la cantidad de compradores que la multitud arrastra fuera antes de comprar (de 5.1 a 3.2 personas por corrida en promedio). El tiempo de salida no mejoró.
+\item[¿Cuánto mejoró?] $-0.082$ personas/m$^2$ de densidad pico ($-3.8$\,\%) con 500 personas, $-0.129$ ($-5.6$\,\%) con 600 y $-0.079$ ($-3.7$\,\%) con atención lenta. En $T_{95}$ los cambios son de $-0.8$\,\%, $+2.6$\,\% y $+0.2$\,\%; solo el de 600 personas es significativo, y es en contra del PSO (Tabla~\ref{tab:comparaciones}).
+\item[¿Bajo qué condiciones?] Cierre ordinario sin pánico, 500 a 600 personas en la zona sur, 35\,\% de compradores, tiempos de atención de 16.4 o 24.6 s, los portones en las posiciones supuestas y el resto de supuestos de la Sección 1. Fuera de eso los resultados no están probados.
+\item[¿Qué tan confiable es la comparación?] Dentro del modelo, bastante: son 30 réplicas pareadas con las mismas personas, el montaje se eligió sin usar esas semillas y los intervalos de la densidad no tocan el cero en ninguno de los tres escenarios. Frente a la realidad, menos: el modelo reproduce el flujo real con 9\,\% de error, pero subestima la densidad real en 34\,\%. La diferencia entre montajes es más confiable que los valores absolutos, siempre que ese sesgo afecte por igual a los dos montajes, lo cual es un supuesto.
+\item[¿Qué limitaciones permanecen?] No hay datos reales del recinto. El modelo subestima la densidad. La posición de los portones, el tamaño de las barras y la variación del tiempo de atención son estimaciones. La zona modelada tiene 500 personas cuando el concierto tiene más de 15 mil. Con el presupuesto disponible, el PSO no garantiza el mejor montaje posible: se encontraron varios óptimos parecidos.
+\end{description}
+
+\subsection{Discusión}
+El montaje tradicional no es malo en esta geometría: deja las barras cerca del portón suroeste y quien compra sale rápido después de ser atendido. Su problema es que las filas quedan en el camino principal hacia ese portón. El PSO lo resuelve sacando las barras de ese camino y partiendo el flujo con una valla, y eso explica la menor densidad (Figura~\ref{fig:mapa}).
+
+El tiempo de salida, en cambio, casi no depende del montaje. Lo marca la última persona atendida: con 175 compradores y 12 puntos de atención, las barras tardan unos 4 minutos en atender a todos. Por eso una atención 50\,\% más lenta alarga la salida 41\,\%, mientras que mover las barras la cambia menos de 1\,\%. En el escenario con 600 personas el montaje PSO tarda un poco más, porque sus barras están donde empieza el público y las filas estorban más a quienes salen.
+
+\subsection{Conclusión}
+Optimizar la ubicación de barras y vallas con PSO reduce la densidad pico cerca de 4\,\% en el modelo, de forma consistente en los tres escenarios probados, sin empeorar el tiempo de salida con la demanda normal. La mejora es real dentro del modelo pero pequeña, y no reemplaza la medida que más pesa en el tiempo de salida: atender más rápido en las barras.
+
+\subsection{Recomendación para el recinto}
+\begin{enumerate}
+\item No colocar las filas de las barras en el camino hacia el portón suroeste, es decir, no alinear las barras en el borde oeste. Llevarlas hacia el norte y el centro, donde está el público al terminar.
+\item Instalar una valla de unos 6 m a unos 6 m del portón suroeste, casi paralela al borde sur, para partir en dos el flujo que llega a ese portón, y otra en diagonal frente al portón sureste.
+\item Para bajar el tiempo de salida, aumentar la capacidad de atención cashless: más terminales por barra, pagos más rápidos o devolución de saldo en línea. El número de terminales no se simuló; es el siguiente experimento recomendado.
+\item Si se espera más de 500 personas en esta zona, preferir el montaje PSO: según el ajuste de la Sección 7, el montaje base podría acercarse a 4 personas/m$^2$ con sobrecupo.
+\item Antes de adoptar el cambio, medir en un evento real los flujos en los portones, las densidades y los tiempos de atención, y usar esos datos para recalibrar el modelo.
+\end{enumerate}
+
+\section{Reproducibilidad}
+Todo el trabajo se reproduce desde un entorno limpio con los pasos del archivo README del repositorio. Se usó Python 3.14.8 con NumPy 2.5.4, Numba 0.68.1, SciPy 1.18.1, shapely 2.2.0, matplotlib 3.11.2 y pytest 9.2.0, y Deno 2.9.5 con Fresh 2.3.3 para el visor. El script \texttt{run\_all.py} descarga los datos que falten, calibra el modelo, corre la búsqueda, el experimento y la comparación con la realidad, y regenera todas las tablas y figuras de este informe en unos 5 minutos en una computadora de 20 núcleos. Dos corridas completas seguidas producen exactamente los mismos archivos.
+
+\begin{table}[H]
+\centering
+\caption{Semillas usadas en cada parte del trabajo.}
+\begin{tabular}{ll}
+\toprule
+Uso & Semillas \\
+\midrule
+Prueba del PSO con Rastrigin & 1 a 20 \\
+Estudio de montajes al azar & 7 \\
+Calibración con Jülich & 1 a 5 \\
+Reinicios del enjambre & 11, 12 y 13 \\
+Evaluación durante la búsqueda & 1, 2 y 3 \\
+Selección del ganador & 2001 a 2010 \\
+Experimento final & 1001 a 1030 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Contribuciones y uso de inteligencia artificial}
+\textbf{Autor.} \autor\ definió el problema y el escenario, eligió la técnica, fijó los parámetros del enunciado, revisó cada parte del trabajo antes de aceptarla y decidió qué cambios se integraban.
+
+\textbf{Uso de inteligencia artificial.} El código, las pruebas, las figuras y la redacción de este informe se produjeron con Claude Code (Anthropic, modelo Claude Opus 5.5), bajo la dirección y revisión del autor y por partes. La herramienta también se usó para buscar y verificar fuentes en internet. Todos los números del informe salen del código del repositorio y se pueden volver a generar con \texttt{run\_all.py}. El autor es responsable del contenido final.
 
 \printbibliography[title={Referencias}]
 

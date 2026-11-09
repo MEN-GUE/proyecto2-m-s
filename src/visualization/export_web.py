@@ -38,7 +38,8 @@ def export(name="base", n=P.N_AGENTS, seed=1001, service_mean=P.SERVICE_MEAN, ta
 
 def save(data, path=None):
     m = data["meta"]
-    path = Path(path) if path else WEB_DATA / f"{m['layout']}_n{m['n']}_s{m['seed']}.json"
+    tag = "" if m["service_mean"] == P.SERVICE_MEAN else f"_t{m['service_mean']}"
+    path = Path(path) if path else WEB_DATA / f"{m['layout']}_n{m['n']}_s{m['seed']}{tag}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, separators=(",", ":")))
     index = sorted(p.stem for p in WEB_DATA.glob("*.json") if p.stem != "index")

@@ -42,8 +42,9 @@ def main():
     plot_violins()
     correspondence()
     plot_density_check()
-    for name in ("base", "pso"):
-        export_web.save(export_web.export(name))
+    for name, n, service in (("base", 500, 16.4), ("pso", 500, 16.4), ("base", 600, 16.4), ("pso", 600, 16.4),
+                             ("base", 500, 24.6), ("pso", 500, 24.6)):
+        export_web.save(export_web.export(name, n, 1001, service))
 
 
 if __name__ == "__main__":

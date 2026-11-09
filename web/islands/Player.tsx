@@ -30,8 +30,11 @@ const C = {
 };
 
 function label(name: string) {
-  const m = name.match(/^(\w+?)_n(\d+)_s(\d+)/);
-  return m ? `${m[1] === "base" ? "Base" : "PSO"}, ${m[2]} personas, semilla ${m[3]}` : name;
+  const m = name.match(/^([a-z]+)_n(\d+)_s(\d+)(?:_t([\d.]+))?/);
+  if (!m) return name;
+  const extra = m[4] ? `, atención ${m[4]} s` : "";
+  const fresh = name.includes("(nueva)") ? " (nueva)" : "";
+  return `${m[1] === "base" ? "Base" : "PSO"}, ${m[2]} personas, semilla ${m[3]}${extra}${fresh}`;
 }
 
 function densityGrid(frame: number[]) {
@@ -147,11 +150,11 @@ function Panel({ run, k, showDensity }: { run: Run | null; k: number; showDensit
         </div>
         <div>
           <dt>Densidad ahora</dt>
-          <dd>{run.density[kk].toFixed(2)} p/m²</dd>
+          <dd>{run.density[kk].toFixed(2)} p/m2</dd>
         </div>
         <div>
           <dt>Densidad pico</dt>
-          <dd>{Number(m.d_max).toFixed(2)} p/m²</dd>
+          <dd>{Number(m.d_max).toFixed(2)} p/m2</dd>
         </div>
         <div>
           <dt>T95</dt>
@@ -159,7 +162,7 @@ function Panel({ run, k, showDensity }: { run: Run | null; k: number; showDensit
         </div>
         <div>
           <dt>Flujo pico</dt>
-          <dd>{Number(m.peak_flow).toFixed(2)} p/(m·s)</dd>
+          <dd>{Number(m.peak_flow).toFixed(2)} p/(m s)</dd>
         </div>
         <div>
           <dt>Salieron sin comprar</dt>
@@ -225,7 +228,7 @@ export default function Player() {
     setNames((old) => [...old, name]);
     setSel(([a]) => [a, name]);
     setK(0);
-    setStatus(`Listo: T95 = ${data.metrics.t95} s, densidad pico = ${data.metrics.d_max} p/m²`);
+    setStatus(`Listo: T95 = ${data.metrics.t95} s, densidad pico = ${data.metrics.d_max} p/m2`);
   }
 
   return (
@@ -241,7 +244,7 @@ export default function Player() {
         </label>
         <label>
           <input type="checkbox" checked={showDensity} onChange={(e) => setShowDensity(e.currentTarget.checked)} />
-          Densidad
+          Densidad (rojo intenso = 4 p/m2)
         </label>
         <input
           type="range"
