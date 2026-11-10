@@ -163,6 +163,8 @@ La Explanada Cayalá es el terreno abierto al norte de los campos de Futeca, jun
 
 Datos de mapa: colaboradores de OpenStreetMap. Datos de Jülich: Forschungszentrum Jülich, CC BY 4.0.
 
-## Uso de inteligencia artificial
+## Contribuciones y uso de inteligencia artificial
 
-El código, las pruebas, las figuras y la redacción del informe se produjeron con Claude Code (Anthropic, modelo Claude Opus 5.5), bajo la dirección y revisión del autor y por partes. El autor definió el problema, revisó cada parte antes de integrarla y es responsable de las decisiones finales. Todos los números del informe salen del código de este repositorio.
+**Autor.** Juan Fernando Menéndez Guerra definió el problema y el escenario, eligió la técnica, fijó los parámetros del enunciado, revisó cada parte del trabajo antes de aceptarla y decidió qué cambios se integraban.
+
+**Uso de inteligencia artificial.** Parte del código, pruebas, correcciones y aclaraciones.
