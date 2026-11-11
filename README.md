@@ -1,5 +1,7 @@
 # Salida de público al cierre de un concierto en la Explanada Cayalá
 
+## NOTA: El reporte estáen la carpeta report/informe.pdf
+
 Proyecto 2 de CC3074 Modelización y Simulación (UVG, ciclo 2 de 2026).
 
 Autor: Juan Fernando Menéndez Guerra, carné 17444. Trabajo individual aprobado por el docente.
