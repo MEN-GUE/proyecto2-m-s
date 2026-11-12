@@ -30,6 +30,7 @@ Se simula la salida de público en la zona sur de la Explanada Cayalá (zona 16,
 
 | Entregable | Dónde está |
 | --- | --- |
+| VÍDEO | https://youtu.be/cedJD8QKWyM[https://youtu.be/cedJD8QKWyM](https://youtu.be/cedJD8QKWyM) |
 | Informe técnico | `report/informe.pdf` (fuente en `report/informe.tex`) |
 | Código | `src/`, `run_all.py`, `tests/` |
 | Evidencia experimental | `results/tables/` (CSV y LaTeX), `results/figures/`, `results/layouts/pso.json`, `results/logs/`, `results/calibracion.json` |
@@ -144,12 +145,8 @@ Una corrida suelta para el visor:
 ```
 
 ## Demostración en el video
-
-Las corridas guardadas sirven de respaldo si falla el entorno. Están la base y el PSO con 500 personas, con 600 personas y con atención de 24.6 s, todas con la semilla 1001. Una forma de grabar el bloque de demostración del video con el visor:
-
-1. Base frente a PSO con 500 personas: mostrar cómo en la base la corriente hacia el portón suroeste pasa pegada a las filas de las barras y cómo en el PSO las vallas separan las corrientes de cada portón.
-2. Activar la capa de densidad en el momento de mayor salida (cerca de t = 25 s).
-3. Lanzar una corrida nueva con otra semilla para mostrar que el programa corre en vivo.
+ [https://youtu.be/cedJD8QKWyM](https://youtu.be/cedJD8QKWyM)
+ (https://youtu.be/cedJD8QKWyM)[https://youtu.be/cedJD8QKWyM]
 
 ## Datos
 
@@ -164,9 +161,3 @@ Las corridas guardadas sirven de respaldo si falla el entorno. Están la base y 
 La Explanada Cayalá es el terreno abierto al norte de los campos de Futeca, junto al Bulevar Austriaco. En OSM aparece como "Arena Gallo", agregado al mapa el 20 de octubre de 2026 y etiquetado como zona en construcción. La identificación la hizo el autor, que conoce el lugar. Como es un descampado que se arma distinto en cada evento, la posición de portones, barras y vallas es una estimación.
 
 Datos de mapa: colaboradores de OpenStreetMap. Datos de Jülich: Forschungszentrum Jülich, CC BY 4.0.
-
-## Contribuciones y uso de inteligencia artificial
-
-**Autor.** Juan Fernando Menéndez Guerra definió el problema y el escenario, eligió la técnica, fijó los parámetros del enunciado, revisó cada parte del trabajo antes de aceptarla y decidió qué cambios se integraban.
-
-**Uso de inteligencia artificial.** Parte del código, pruebas, correcciones y aclaraciones.
